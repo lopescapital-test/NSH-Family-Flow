@@ -1,0 +1,3265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NeuroHome · Find Your Child's Path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #fafbfc;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0f2f6;
+  --bg-deep: #f5f7fa;
+  --bg-tint: #ecfeff;
+  --border: #e6e8ee;
+  --border-strong: #cdd2db;
+  --text-primary: #1a1d23;
+  --text-secondary: #4a5260;
+  --text-muted: #8891a0;
+  --accent: #0891b2;
+  --accent-deep: #0e7490;
+  --accent-soft: #cffafe;
+  --gold: #d97706;
+  --gold-soft: #fef3c7;
+  /* Profile palette */
+  --prof-a: #16a34a;  --prof-a-soft: #dcfce7;
+  --prof-b: #9333ea;  --prof-b-soft: #f3e8ff;
+  --prof-c: #d97706;  --prof-c-soft: #fef3c7;
+  --prof-d: #2563eb;  --prof-d-soft: #dbeafe;
+  --prof-e: #ea580c;  --prof-e-soft: #ffedd5;
+  --prof-f: #be123c;  --prof-f-soft: #ffe4e6;
+  /* Active profile accent (set dynamically) */
+  --p-color: var(--accent);
+  --p-soft: var(--accent-soft);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────
+   TOP NAV (always visible)
+   ───────────────────────────────────────────────── */
+.topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(250, 251, 252, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid transparent;
+  padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: border-color 0.3s ease;
+}
+.topnav.scrolled { border-bottom-color: var(--border); }
+.topnav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.topnav-brand span { color: var(--accent); font-style: italic; }
+.topnav-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.topnav-restart {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: none; border: none; cursor: pointer;
+  padding: 6px 10px; border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.topnav-restart:hover { color: var(--accent); background: var(--accent-soft); }
+
+/* ─────────────────────────────────────────────────
+   SCREEN MANAGEMENT
+   ───────────────────────────────────────────────── */
+.screen { display: none; min-height: 100vh; padding-top: 60px; }
+.screen.active { display: block; animation: fadeIn 0.5s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInSlow {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────────────
+   WELCOME SCREEN
+   ───────────────────────────────────────────────── */
+#welcome {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 120px 40px 80px;
+  position: relative; overflow: hidden;
+}
+#welcome.active { display: flex; }
+#welcome::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 20%, var(--accent-soft) 0%, transparent 50%),
+    radial-gradient(ellipse 500px 300px at 80% 70%, var(--gold-soft) 0%, transparent 50%);
+  opacity: 0.55; pointer-events: none;
+}
+.welcome-inner { max-width: 760px; text-align: center; position: relative; z-index: 1; }
+.welcome-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: fadeInSlow 0.7s ease 0.1s both;
+}
+.welcome-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 6.5vw, 80px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 24px;
+  animation: fadeInSlow 0.7s ease 0.2s both;
+}
+.welcome-title em {
+  font-style: italic; color: var(--accent); font-weight: 400;
+}
+.welcome-sub {
+  font-size: 19px; color: var(--text-secondary);
+  max-width: 580px; margin: 0 auto 48px;
+  line-height: 1.55;
+  animation: fadeInSlow 0.7s ease 0.35s both;
+}
+.welcome-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 500;
+  background: var(--text-primary); color: white;
+  padding: 16px 32px; border-radius: 999px;
+  border: none; cursor: pointer;
+  transition: all 0.25s ease;
+  animation: fadeInSlow 0.7s ease 0.5s both;
+  box-shadow: 0 8px 24px rgba(26, 29, 35, 0.16);
+}
+.welcome-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(26, 29, 35, 0.22);
+  background: var(--accent);
+}
+.welcome-cta-arrow {
+  display: inline-block; transition: transform 0.25s ease;
+}
+.welcome-cta:hover .welcome-cta-arrow { transform: translateX(4px); }
+.welcome-skip {
+  display: block; margin-top: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--text-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: none; border: none; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 4px;
+  transition: color 0.2s ease;
+  animation: fadeInSlow 0.7s ease 0.65s both;
+  margin-left: auto; margin-right: auto;
+}
+.welcome-skip:hover { color: var(--accent); }
+
+.welcome-pillars {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 80px; max-width: 760px; margin-left: auto; margin-right: auto;
+  animation: fadeInSlow 0.7s ease 0.8s both;
+}
+.welcome-pillar {
+  text-align: left;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.welcome-pillar-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 500; font-style: italic;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.welcome-pillar-title {
+  font-size: 15px; font-weight: 600;
+  margin-bottom: 6px;
+}
+.welcome-pillar-desc {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Welcome stories — pulled above the fold, between hero and pillars */
+.welcome-stories-section {
+  width: 100%;
+  max-width: 1100px;
+  margin: 80px auto 0;
+  text-align: left;
+  animation: fadeInSlow 0.7s ease 0.7s both;
+}
+.welcome-stories-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.welcome-stories-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.welcome-stories-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4.5vw, 44px);
+  font-weight: 500; line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+.welcome-stories-title em {
+  font-style: italic; color: var(--accent);
+}
+.welcome-stories-sub {
+  font-size: 16px; color: var(--text-secondary);
+  max-width: 580px; margin: 0 auto;
+  line-height: 1.55;
+}
+.welcome-stories-disclaimer {
+  text-align: center;
+  margin-top: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* Welcome CTA section — moved below stories. Final, decisive. */
+.welcome-cta-section {
+  width: 100%;
+  max-width: 600px;
+  margin: 80px auto 0;
+  text-align: center;
+  position: relative; z-index: 1;
+  animation: fadeInSlow 0.8s ease 0.95s both;
+}
+.welcome-cta-framing {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500; font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  line-height: 1.4;
+}
+.welcome-cta-section .welcome-cta {
+  /* override animation — this CTA gets revealed naturally with its parent section */
+  animation: none;
+}
+.welcome-cta-section .welcome-skip {
+  animation: none;
+  margin-top: 24px;
+}
+
+/* ─────────────────────────────────────────────────
+   INTAKE SCREEN
+   ───────────────────────────────────────────────── */
+#intake {
+  display: none;
+  min-height: 100vh;
+  align-items: center; justify-content: center;
+  padding: 100px 40px 60px;
+}
+#intake.active { display: flex; }
+.intake-inner { max-width: 720px; width: 100%; }
+
+.intake-progress {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 48px; justify-content: center;
+}
+.progress-dot {
+  width: 28px; height: 4px; border-radius: 2px;
+  background: var(--border);
+  transition: background 0.4s ease, width 0.4s ease;
+}
+.progress-dot.complete { background: var(--accent); }
+.progress-dot.current { background: var(--accent); width: 48px; }
+.progress-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-left: 12px;
+}
+
+.intake-question {
+  animation: fadeInSlow 0.5s ease;
+}
+.intake-q-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--accent);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.intake-q-text {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+}
+.intake-q-text em { font-style: italic; color: var(--accent); }
+
+.intake-options {
+  display: grid; gap: 12px;
+}
+.intake-option {
+  text-align: left;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  font-size: 16px; color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'DM Sans', sans-serif;
+}
+.intake-option:hover {
+  border-color: var(--accent);
+  background: var(--bg-tint);
+  transform: translateX(2px);
+}
+.intake-option-arrow {
+  color: var(--text-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.intake-option:hover .intake-option-arrow {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+.intake-back {
+  margin-top: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: none; border: none; cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+}
+.intake-back:hover { color: var(--accent); }
+
+/* ─────────────────────────────────────────────────
+   PICKER SCREEN (skip intake mode)
+   ───────────────────────────────────────────────── */
+#picker {
+  display: none;
+  min-height: 100vh;
+  padding: 100px 40px 60px;
+}
+#picker.active { display: block; }
+.picker-inner { max-width: 1100px; margin: 0 auto; }
+.picker-header { text-align: center; margin-bottom: 48px; }
+.picker-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.picker-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.picker-title em { font-style: italic; color: var(--accent); }
+.picker-sub {
+  font-size: 17px; color: var(--text-secondary);
+  max-width: 600px; margin: 0 auto;
+}
+.picker-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+.picker-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative; overflow: hidden;
+}
+.picker-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: var(--card-color);
+}
+.picker-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(26, 29, 35, 0.08);
+  border-color: var(--card-color);
+}
+.picker-card-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px; font-weight: 600; font-style: italic;
+  color: var(--card-color);
+  line-height: 1; margin-bottom: 12px;
+}
+.picker-card-name {
+  font-size: 13px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--card-color);
+  margin-bottom: 6px;
+}
+.picker-card-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500;
+  line-height: 1.25;
+  margin-bottom: 12px;
+}
+.picker-card-desc {
+  font-size: 14px; color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* ─────────────────────────────────────────────────
+   REVEAL SCREEN
+   ───────────────────────────────────────────────── */
+#reveal {
+  display: none;
+  min-height: 100vh;
+  align-items: center; justify-content: center;
+  padding: 100px 40px 60px;
+  position: relative; overflow: hidden;
+}
+#reveal.active { display: flex; }
+#reveal::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 700px 500px at 50% 40%, var(--p-soft) 0%, transparent 60%);
+  opacity: 0.7; pointer-events: none;
+}
+.reveal-inner { max-width: 720px; text-align: center; position: relative; z-index: 1; }
+.reveal-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 32px;
+  animation: fadeInSlow 0.6s ease 0.1s both;
+}
+.reveal-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(140px, 22vw, 240px);
+  font-weight: 600; font-style: italic;
+  color: var(--p-color);
+  line-height: 0.85;
+  margin-bottom: 24px;
+  animation: revealIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+@keyframes revealIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+.reveal-name {
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--p-color);
+  margin-bottom: 16px;
+  animation: fadeInSlow 0.6s ease 0.7s both;
+}
+.reveal-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 500; font-style: italic;
+  color: var(--text-primary);
+  margin-bottom: 32px; line-height: 1.3;
+  animation: fadeInSlow 0.6s ease 0.85s both;
+}
+.reveal-desc {
+  font-size: 17px; color: var(--text-secondary);
+  margin-bottom: 48px; line-height: 1.6;
+  animation: fadeInSlow 0.6s ease 1s both;
+}
+.reveal-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 500;
+  background: var(--p-color); color: white;
+  padding: 16px 32px; border-radius: 999px;
+  border: none; cursor: pointer;
+  transition: all 0.25s ease;
+  animation: fadeInSlow 0.6s ease 1.15s both;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.reveal-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18); }
+.reveal-cta-arrow { transition: transform 0.25s ease; }
+.reveal-cta:hover .reveal-cta-arrow { transform: translateX(4px); }
+
+/* Reveal — personalized recap & synthesis */
+.reveal-recap {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  margin: 0 auto 28px;
+  max-width: 640px;
+  animation: fadeInSlow 0.6s ease 0.95s both;
+}
+.reveal-recap-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+.reveal-recap-pill::before {
+  content: '✓';
+  color: var(--p-color);
+  font-weight: 700;
+}
+.reveal-recap-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  animation: fadeInSlow 0.6s ease 0.85s both;
+}
+.reveal-personalized {
+  font-size: 17px;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 auto 36px;
+  line-height: 1.65;
+  animation: fadeInSlow 0.6s ease 1.05s both;
+}
+.reveal-personalized em {
+  font-style: italic;
+  color: var(--p-color);
+  font-weight: 500;
+}
+
+/* ─────────────────────────────────────────────────
+   RESULTS SCREEN
+   ───────────────────────────────────────────────── */
+#results { display: none; padding-top: 60px; }
+#results.active { display: block; }
+
+/* Profile switcher (sticky) */
+.profile-switcher {
+  position: sticky; top: 60px; z-index: 50;
+  background: rgba(250, 251, 252, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+}
+.switcher-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px;
+}
+.switcher-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.switcher-pills {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.switcher-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-secondary);
+}
+.switcher-pill:hover { border-color: var(--pill-color); color: var(--pill-color); }
+.switcher-pill.active {
+  background: var(--pill-color);
+  color: white;
+  border-color: var(--pill-color);
+}
+.switcher-pill-letter {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-weight: 600;
+  font-size: 14px;
+}
+
+/* Results layout */
+.results-content {
+  max-width: 1100px; margin: 0 auto;
+  padding: 64px 40px 96px;
+}
+.section {
+  padding: 56px 0;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+.section-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--p-color);
+  background: var(--p-soft);
+  padding: 5px 12px; border-radius: 4px;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.section-title em { font-style: italic; color: var(--p-color); }
+.section-lead {
+  font-size: 19px; color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 760px;
+  margin-bottom: 36px;
+}
+
+/* Profile description card */
+.profile-overview {
+  display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px;
+  align-items: center;
+}
+.profile-overview-text { }
+.profile-overview-tag {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--p-color); margin-bottom: 12px;
+}
+.profile-overview-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-style: italic; font-weight: 500;
+  line-height: 1.3; margin-bottom: 24px;
+  color: var(--text-primary);
+}
+.profile-overview-body p {
+  font-size: 16px; color: var(--text-secondary);
+  margin-bottom: 14px; line-height: 1.7;
+}
+.profile-overview-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  position: relative; overflow: hidden;
+}
+.profile-overview-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: var(--p-color);
+}
+.poc-row {
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.poc-row:last-child { border-bottom: none; padding-bottom: 0; }
+.poc-row:first-child { padding-top: 6px; }
+.poc-label {
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.poc-val {
+  color: var(--text-primary); font-weight: 500;
+  text-align: right;
+}
+
+/* Treatment approach grid */
+.approach-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px; margin-top: 32px;
+}
+.approach-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.approach-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--p-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+.approach-card-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-style: italic; font-weight: 500;
+  color: var(--p-color); line-height: 1;
+  margin-bottom: 14px;
+}
+.approach-card-title {
+  font-size: 15px; font-weight: 600;
+  margin-bottom: 8px;
+}
+.approach-card-desc {
+  font-size: 14px; color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Tier recommendation */
+.tier-rec {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--p-soft) 100%);
+  border: 1.5px solid var(--p-color);
+  border-radius: 16px;
+  padding: 36px;
+  margin-top: 24px;
+  position: relative; overflow: hidden;
+}
+.tier-rec-badge {
+  position: absolute; top: 24px; right: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--p-color);
+  background: white; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--p-color);
+}
+.tier-rec-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 44px; font-weight: 500;
+  line-height: 1.05; letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.tier-rec-name em { font-style: italic; color: var(--p-color); }
+.tier-rec-philo {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 19px;
+  color: var(--text-secondary); margin-bottom: 28px;
+}
+.tier-rec-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  margin-bottom: 28px;
+  padding: 24px 0;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.tier-rec-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 500;
+  color: var(--p-color); line-height: 1; margin-bottom: 6px;
+}
+.tier-rec-stat-label {
+  font-size: 12px; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.tier-rec-includes {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px;
+}
+.tier-rec-includes-item {
+  font-size: 14px; color: var(--text-primary);
+  display: flex; align-items: flex-start; gap: 10px;
+  line-height: 1.5;
+}
+.tier-rec-includes-item::before {
+  content: '✓'; color: var(--p-color); font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Kit display */
+.kit-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px; margin-top: 24px;
+}
+.kit-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+.kit-item:hover {
+  border-color: var(--p-color);
+  transform: translateY(-2px);
+}
+.kit-item.addon {
+  border-style: dashed; border-color: var(--p-color);
+  background: var(--p-soft);
+}
+.kit-item-cat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.kit-item.addon .kit-item-cat { color: var(--p-color); }
+.kit-item-name {
+  font-size: 16px; font-weight: 600;
+  margin-bottom: 6px;
+}
+.kit-item-purpose {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.5;
+}
+.kit-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin: 32px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* 12-week plan */
+.plan-phases {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 28px;
+}
+.plan-phase {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--p-color);
+  border-radius: 10px;
+  padding: 20px;
+}
+.plan-phase-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--p-color);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.plan-phase-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500;
+  margin-bottom: 8px;
+}
+.plan-phase-weeks {
+  font-size: 12px; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.plan-phase-desc {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.plan-day {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  margin-top: 32px;
+}
+.plan-day-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 20px;
+  padding-bottom: 24px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.plan-day-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 500;
+  margin-bottom: 4px;
+}
+.plan-day-sub {
+  font-size: 13px; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.plan-day-totals {
+  display: flex; gap: 24px;
+  align-items: center;
+}
+.plan-day-totals-cell { text-align: right; }
+.plan-day-totals-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 500; font-style: italic;
+  color: var(--p-color);
+  line-height: 1;
+}
+.plan-day-totals-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-top: 6px;
+}
+.plan-day-blocks {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+}
+.plan-block {
+  background: var(--bg-deep);
+  border-radius: 10px;
+  padding: 20px;
+  border-top: 3px solid var(--p-color);
+}
+.plan-block-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--p-color);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.plan-block-headline {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+.plan-block-when {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; font-style: italic; font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+.plan-block-duration {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--p-color);
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  flex-shrink: 0;
+  background: var(--p-soft);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.plan-block-list {
+  list-style: none; padding: 0;
+  margin-bottom: 14px;
+}
+.plan-block-list li {
+  font-size: 13px; color: var(--text-secondary);
+  padding: 5px 0; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.plan-block-list li::before {
+  content: '•'; color: var(--p-color); font-weight: 700;
+  flex-shrink: 0;
+}
+.plan-block-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-strong);
+  font-style: italic;
+}
+.plan-block-note strong {
+  font-style: normal;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--p-color);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.plan-day-progression {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--p-soft);
+  border-left: 3px solid var(--p-color);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.plan-day-progression strong {
+  color: var(--p-color);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ─────────────────────────────────────────────────
+   TEAM / TRUST SECTION
+   ───────────────────────────────────────────────── */
+.team-strip {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 32px;
+  align-items: stretch;
+  margin-top: 28px;
+}
+.team-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.team-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+.team-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--p-color), var(--p-soft));
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 26px; font-weight: 600; font-style: italic;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.team-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 500;
+  margin-bottom: 2px;
+}
+.team-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.team-bio {
+  font-size: 13.5px; color: var(--text-secondary);
+  line-height: 1.6;
+}
+.cohort-card {
+  background: linear-gradient(160deg, var(--p-soft) 0%, var(--bg-card) 100%);
+  border: 1.5px solid var(--p-color);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.cohort-stat {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 14px;
+}
+.cohort-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px; font-weight: 600; font-style: italic;
+  color: var(--p-color); line-height: 1;
+}
+.cohort-stat-label {
+  font-size: 14px; color: var(--text-primary);
+  font-weight: 500; line-height: 1.3;
+}
+.cohort-detail {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────────────
+   PATIENT STORIES
+   ───────────────────────────────────────────────── */
+.stories-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+.story-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.story-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--story-color);
+}
+.story-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--story-color);
+}
+.story-illustrative {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  opacity: 0.85;
+}
+.story-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 16px;
+}
+.story-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.story-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--story-color);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  background: var(--story-soft);
+  padding: 4px 8px; border-radius: 4px;
+}
+.story-arc {
+  font-size: 14px; color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.story-arc strong {
+  color: var(--text-primary); font-weight: 600;
+}
+.story-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding: 14px 0 8px;
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+.story-quote::before {
+  content: '"';
+  font-size: 36px;
+  color: var(--story-color);
+  line-height: 0;
+  margin-right: 4px;
+  vertical-align: -10px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+}
+.story-attribution {
+  font-size: 12px; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+/* ─────────────────────────────────────────────────
+   SUCCESS / NEUROPLASTIC CHANGE
+   ───────────────────────────────────────────────── */
+.change-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+.change-phase {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.change-phase-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--p-color);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--p-soft);
+  padding: 4px 10px; border-radius: 4px;
+  align-self: flex-start;
+}
+.change-phase-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500;
+  font-style: italic;
+  color: var(--p-color);
+  letter-spacing: -0.01em;
+}
+.change-phase-body {
+  font-size: 14px; color: var(--text-secondary);
+  line-height: 1.65;
+}
+.change-caveat {
+  margin-top: 24px;
+  padding: 22px 24px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  border-left: 3px solid var(--text-muted);
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-style: italic;
+}
+.change-caveat strong {
+  color: var(--text-primary);
+  font-style: normal;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────
+   LABS
+   ───────────────────────────────────────────────── */
+.labs-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+.lab-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.lab-card.universal { border-left: 4px solid var(--accent); }
+.lab-card.full { border-left: 4px dashed var(--p-color); }
+.lab-tier-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.lab-card.universal .lab-tier-tag { color: var(--accent); }
+.lab-card.full .lab-tier-tag { color: var(--p-color); }
+.lab-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.lab-sub {
+  font-size: 12px; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+}
+.lab-row {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px;
+  margin-top: 6px;
+}
+.lab-row-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.lab-row-content {
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* ─────────────────────────────────────────────────
+   RIGHT-FIT
+   ───────────────────────────────────────────────── */
+.fit-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 28px;
+}
+.fit-col {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+.fit-col.yes { border-top: 4px solid var(--p-color); }
+.fit-col.no { border-top: 4px solid var(--text-muted); opacity: 0.95; }
+.fit-col-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.fit-col.yes .fit-col-title { color: var(--p-color); }
+.fit-col.no .fit-col-title { color: var(--text-muted); }
+.fit-list { list-style: none; padding: 0; }
+.fit-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.fit-list li:last-child { border-bottom: none; }
+.fit-list li::before {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 1px;
+}
+.fit-col.yes .fit-list li::before { content: '✓'; color: var(--p-color); }
+.fit-col.no .fit-list li::before { content: '–'; color: var(--text-muted); }
+.fit-honesty {
+  margin-top: 24px;
+  padding: 28px;
+  background: var(--text-primary);
+  color: rgba(255,255,255,0.92);
+  border-radius: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 19px; font-style: italic;
+  line-height: 1.55;
+  position: relative; overflow: hidden;
+}
+.fit-honesty::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 500px 200px at 100% 0%, var(--p-color) 0%, transparent 60%);
+  opacity: 0.25;
+}
+.fit-honesty-content { position: relative; z-index: 1; }
+.fit-honesty-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(255,255,255,0.55);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  font-style: normal;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────
+   FAQ
+   ───────────────────────────────────────────────── */
+.faq-list {
+  margin-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+.faq-summary {
+  cursor: pointer;
+  padding: 22px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  list-style: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 19px; font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.4;
+  transition: color 0.2s ease;
+}
+.faq-summary::-webkit-details-marker { display: none; }
+.faq-summary:hover { color: var(--p-color); }
+.faq-icon {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-muted);
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+.faq-item[open] .faq-icon {
+  background: var(--p-color);
+  color: white;
+  border-color: var(--p-color);
+  transform: rotate(45deg);
+}
+.faq-body {
+  padding: 0 32px 24px 4px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  animation: fadeInSlow 0.3s ease;
+}
+.faq-body p { margin-bottom: 12px; }
+.faq-body p:last-child { margin-bottom: 0; }
+
+/* ─────────────────────────────────────────────────
+   UPGRADED DISCOVERY CALL
+   ───────────────────────────────────────────────── */
+.discovery-card {
+  background: var(--text-primary);
+  color: white;
+  border-radius: 20px;
+  padding: 56px 48px;
+  margin-top: 32px;
+  position: relative; overflow: hidden;
+}
+.discovery-card::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 700px 400px at 0% 0%, var(--p-color) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 300px at 100% 100%, var(--accent) 0%, transparent 60%);
+  opacity: 0.35;
+}
+.discovery-content { position: relative; z-index: 1; }
+.discovery-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.discovery-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4.2vw, 44px);
+  font-weight: 500; line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  max-width: 640px;
+}
+.discovery-title em {
+  font-style: italic; color: var(--p-soft);
+}
+.discovery-sub {
+  font-size: 17px; color: rgba(255,255,255,0.78);
+  max-width: 580px; margin-bottom: 36px;
+  line-height: 1.6;
+}
+.discovery-meta {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 36px;
+  padding: 24px 0;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.discovery-meta-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 500; font-style: italic;
+  color: var(--p-soft); line-height: 1;
+  margin-bottom: 6px;
+}
+.discovery-meta-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.discovery-covers {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+  margin-bottom: 32px;
+}
+.discovery-covers-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 14.5px; color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+}
+.discovery-covers-item::before {
+  content: '✓';
+  color: var(--p-soft);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.discovery-button {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 500;
+  background: white; color: var(--text-primary);
+  padding: 16px 32px; border-radius: 999px;
+  border: none; cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+.discovery-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.3);
+}
+.discovery-button-arrow { transition: transform 0.25s ease; }
+.discovery-button:hover .discovery-button-arrow { transform: translateX(4px); }
+.discovery-promise {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.55;
+  max-width: 580px;
+}
+
+/* Mobile additions for new sections */
+@media (max-width: 860px) {
+  .team-strip { grid-template-columns: 1fr; gap: 20px; }
+  .stories-grid { grid-template-columns: 1fr; }
+  .change-grid { grid-template-columns: 1fr; }
+  .labs-grid { grid-template-columns: 1fr; }
+  .fit-grid { grid-template-columns: 1fr; }
+  .discovery-card { padding: 36px 28px; }
+  .discovery-meta { grid-template-columns: 1fr; gap: 18px; }
+  .discovery-covers { grid-template-columns: 1fr; }
+}
+
+/* CTA at bottom */
+.final-cta {
+  background: var(--text-primary);
+  color: white;
+  border-radius: 20px;
+  padding: 56px 48px;
+  text-align: center;
+  margin-top: 32px;
+  position: relative; overflow: hidden;
+}
+.final-cta::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 600px 300px at 50% 0%, var(--p-color) 0%, transparent 70%);
+  opacity: 0.3;
+}
+.final-cta-content { position: relative; z-index: 1; }
+.final-cta-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.final-cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 500; line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.final-cta-title em { font-style: italic; color: var(--p-soft); }
+.final-cta-sub {
+  font-size: 16px; color: rgba(255,255,255,0.75);
+  max-width: 540px; margin: 0 auto 32px;
+  line-height: 1.6;
+}
+.final-cta-button {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  background: white; color: var(--text-primary);
+  padding: 14px 28px; border-radius: 999px;
+  border: none; cursor: pointer;
+  transition: all 0.25s ease;
+}
+.final-cta-button:hover { transform: translateY(-2px); }
+
+/* Disclaimer */
+.disclaimer {
+  margin-top: 40px;
+  padding: 20px; background: var(--bg-elevated);
+  border-radius: 10px; border-left: 3px solid var(--text-muted);
+  font-size: 13px; color: var(--text-muted);
+  line-height: 1.6;
+}
+.disclaimer strong { color: var(--text-secondary); }
+
+/* Mobile */
+@media (max-width: 860px) {
+  .topnav { padding: 14px 20px; }
+  .topnav-meta { display: none; }
+  .welcome-pillars { grid-template-columns: 1fr; gap: 12px; margin-top: 56px; }
+  .profile-overview { grid-template-columns: 1fr; gap: 24px; }
+  .tier-rec-stats { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .tier-rec-includes { grid-template-columns: 1fr; }
+  .plan-phases { grid-template-columns: 1fr; }
+  .plan-day-blocks { grid-template-columns: 1fr; gap: 24px; }
+  .results-content { padding: 32px 20px 64px; }
+  .section { padding: 40px 0; }
+  .switcher-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .switcher-label { display: none; }
+  #welcome { padding: 100px 20px 60px; }
+  #intake { padding: 100px 20px 40px; }
+  #picker { padding: 100px 20px 40px; }
+  #reveal { padding: 100px 20px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═════════════════════════════════════════════════ TOP NAV ═════════════════════════════════════════════════ -->
+<nav class="topnav" id="topnav">
+  <div class="topnav-brand">Neuro<span>Home</span></div>
+  <div class="topnav-meta">Family Discovery · v0.7</div>
+  <button class="topnav-restart" onclick="restart()" id="restartBtn" style="display:none">Start Over</button>
+</nav>
+
+<!-- ═════════════════════════════════════════════════ WELCOME ═════════════════════════════════════════════════ -->
+<section id="welcome" class="active">
+
+  <!-- Hero with CTA -->
+  <div class="welcome-inner">
+    <div class="welcome-mark">A clinician-built path · For families</div>
+    <h1 class="welcome-title">Every child has a <em>different brain</em> — your plan should too.</h1>
+    <p class="welcome-sub">In about two minutes, we'll help you understand the most likely shape of your child's challenges and what a 12-week home program could look like for you.</p>
+    <button class="welcome-cta" onclick="goToIntake()">
+      Find your child's path
+      <span class="welcome-cta-arrow">→</span>
+    </button>
+    <button class="welcome-skip" onclick="goToPicker()">Skip — show me all the profiles</button>
+  </div>
+
+  <!-- Stories — proof below the CTA for parents who want to scroll -->
+  <div class="welcome-stories-section">
+    <div class="welcome-stories-header">
+      <div class="welcome-stories-mark">Families we've worked with</div>
+      <h2 class="welcome-stories-title">Real children. <em>Real change.</em></h2>
+      <p class="welcome-stories-sub">Different ages, different profiles, different starting points — and trajectories that consistently moved in the same direction.</p>
+    </div>
+    <div class="stories-grid" id="welcomeStoriesGrid"></div>
+    <p class="welcome-stories-disclaimer">Composite stories from our clinical cohort · names changed</p>
+  </div>
+
+</section>
+
+<!-- ═════════════════════════════════════════════════ INTAKE ═════════════════════════════════════════════════ -->
+<section id="intake">
+  <div class="intake-inner">
+    <div class="intake-progress" id="progress"></div>
+    <div class="intake-question" id="question"></div>
+    <button class="intake-back" onclick="goBack()" id="backBtn" style="display:none">← Back</button>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════ PICKER (skip mode) ═════════════════════════════════════════════════ -->
+<section id="picker">
+  <div class="picker-inner">
+    <div class="picker-header">
+      <div class="picker-mark">All six profiles</div>
+      <h1 class="picker-title">Which best <em>describes</em> your child?</h1>
+      <p class="picker-sub">Pick the profile that sounds most familiar. You can switch between them at any time once you're inside.</p>
+    </div>
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════ REVEAL ═════════════════════════════════════════════════ -->
+<section id="reveal">
+  <div class="reveal-inner">
+    <div class="reveal-mark">Based on what you shared</div>
+    <div class="reveal-letter" id="revealLetter">A</div>
+    <div class="reveal-name" id="revealName">Profile A</div>
+    <div class="reveal-tagline" id="revealTagline"></div>
+    <div class="reveal-recap-label" id="revealRecapLabel" style="display:none">What you told us</div>
+    <div class="reveal-recap" id="revealRecap" style="display:none"></div>
+    <div class="reveal-personalized" id="revealPersonalized"></div>
+    <button class="reveal-cta" onclick="goToResults()">
+      See your child's plan
+      <span class="reveal-cta-arrow">→</span>
+    </button>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════ RESULTS ═════════════════════════════════════════════════ -->
+<section id="results">
+
+  <div class="profile-switcher">
+    <div class="switcher-inner">
+      <div class="switcher-label">Viewing</div>
+      <div class="switcher-pills" id="switcherPills"></div>
+    </div>
+  </div>
+
+  <div class="results-content" id="resultsContent"></div>
+</section>
+
+<script>
+/* ═════════════════════════════════════════════════
+   PROFILE DATA
+   ═════════════════════════════════════════════════ */
+const profiles = {
+  A: {
+    letter: 'A',
+    name: 'Pure Neurodevelopmental',
+    color: 'var(--prof-a)',
+    softColor: 'var(--prof-a-soft)',
+    tagline: 'Building blocks not quite in place — but no clear trigger event.',
+    short: 'Classic developmental delay presentation. The brain is building, just slowly and unevenly.',
+    description: [
+      "Your child likely shows delays in speech, social engagement, or motor milestones — but there isn't an obvious medical event you can point to. No sudden regression. No mold exposure. No infection that flipped a switch.",
+      "What's happening underneath: the bottom-up neurological scaffolding (brainstem reflexes, vagal tone, hemispheric balance) didn't fully assemble. The brain is wired, but the wiring is sparser or out of sequence in the right places.",
+      "This is the most common pattern we see. The good news is it responds well to a clear, consistent home protocol — because the brain is ready to build, it just needs the right stimulation in the right order."
+    ],
+    presentation: { Onset: 'From birth', Reflexes: 'Several retained', Verbal: 'Often delayed', Biomedical: 'Mild — gut focus' },
+    intensity: 'MID',
+    tier: 'accelerated',
+    approach: [
+      { title: 'Cranial nerve work', desc: 'Direct stimulation of vagus, trigeminal, and rooting pathways via the SaeboStim and laser.' },
+      { title: 'Reflex integration', desc: 'Retained primitive reflexes (Moro, ATNR, STNR) are mapped and worked through over the 12 weeks.' },
+      { title: 'Hemispheric pairing', desc: 'Right-brain sensory stimulation (blue glasses + peppermint + left-side TENS) becomes a daily ritual.' },
+      { title: 'Photobiomodulation', desc: 'Targeted light therapy to cerebellum and brainstem to wake up under-firing networks.' }
+    ],
+    addOns: [],
+    addOnsNote: 'No specialty add-ons typically needed — the foundational kit is sufficient for most Profile A children.',
+    schedule: {
+      active: 'Twice-weekly OT/PT plus concierge check-ins. ~5 sessions per active week.',
+      sample: '30-45 min daily protocol — split AM and PM.'
+    },
+    daily: {
+      totalMin: '~45 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~15 min',
+        items: [
+          'Laser to L + R cerebellum (2 min each side)',
+          'Laser to L + R vagus / carotid (2 min each)',
+          'Olfactory: rosemary on left collar, peppermint to right nostril',
+          'Blue glasses with rhythmic music in left ear (10 min — runs in background)',
+          'Shen Men beads placed in both ears for the day'
+        ],
+        expects: 'A waking-up routine — gentle activation of brainstem and right hemisphere. Most parents do it during morning cartoons or breakfast. Kids don\'t experience this as therapy.'
+      },
+      midday: {
+        when: 'Mid-day or after-school block',
+        duration: '~12 min',
+        items: [
+          'NeuroSage Hub session — Tunnel or Roll-A-Ball (10-15 min)',
+          'TENS pads on left paraspinal (concurrent with Hub)',
+          'SaeboStim cranial nerve points: rooting + gag (3 min total)',
+          'If speech delay: pa/ba/ma word-list practice (3 min)',
+          'Cross-crawl exercise — 30 reps (right elbow → left knee, alternating)'
+        ],
+        expects: 'Hub games look like play but are doing real motor planning and sequencing work. The cross-crawl piece is the part most parents skip — don\'t. It\'s a hemispheric integration anchor.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~18 min',
+        items: [
+          'Reflex of the day — rotating: Moro / ATNR / STNR / Spinal Galant (3-5 min)',
+          'TENS up and down spine (5 min)',
+          'Vibration to left arm and left leg (1 min each)',
+          'Peppermint + rosemary collar reapplied',
+          'Bottom-of-feet laser before bed (1 min — parasympathetic prep)',
+          'Brainwave Theta near right ear if struggling to settle (3 min)'
+        ],
+        expects: 'The evening block is where the real building happens. Reflex work feels boring and repetitive — that\'s the point. Same exercise, daily, until it integrates. Most A children show first reflex resolution around week 5-6.'
+      },
+      progression: 'Boot camp weeks 1-2 are lighter while you learn the kit. Weeks 3-9 lock the full daily routine in. Weeks 10-12 step down — by graduation the family is running this in 30 minutes, on autopilot.'
+    }
+  },
+  B: {
+    letter: 'B',
+    name: 'Complex Multi-pathway',
+    color: 'var(--prof-b)',
+    softColor: 'var(--prof-b-soft)',
+    tagline: 'Multiple systems dysregulated together — every layer needs work.',
+    short: 'Severe presentation where neurological, biomedical, and immune layers are all firing at once.',
+    description: [
+      "Your child has heavy primitive reflex burden, multiple developmental areas affected, and likely biomedical issues that compound the picture — gut symptoms, sleep dysregulation, food sensitivities, behavioral storms.",
+      "This isn't a single broken pathway. It's several systems pulling on each other. The reflexes are noisy because the brainstem is dysregulated. The brainstem is dysregulated because gut inflammation is loud. The gut is loud because the vagus nerve isn't doing its job. Pull one thread and others tug back.",
+      "These are the kids who need the fullest version of the program. Not because they're harder to reach — because more layers need attention simultaneously, with someone holding your hand every day."
+    ],
+    presentation: { Onset: 'From birth, severe', Reflexes: 'Heavily retained', Verbal: 'Limited / non-verbal', Biomedical: 'Heavy — full panel' },
+    intensity: 'HIGH',
+    tier: 'immersive',
+    approach: [
+      { title: 'Daily concierge', desc: "Monday-through-Friday clinical contact. You're not figuring this out alone — someone's checking in every weekday." },
+      { title: 'Full diagnostic', desc: 'Stool, OAT, Total Tox, and Neural Zoomer Plus all at intake. We need the full biomedical picture before titrating.' },
+      { title: 'Add-on heavy', desc: 'Stimpod for cymba concha + tongue stim. Class 3B laser layered on for cerebellum and brainstem work.' },
+      { title: 'Saturday deep-dives', desc: 'Weekly 60-min sessions with the clinical team to recalibrate and answer the week\'s questions.' }
+    ],
+    addOns: [
+      { name: 'Stimpod NMS460', purpose: 'Pulsed RF + electrical stim for tongue and cymba concha vagus work.' },
+      { name: 'Class 3B Laser', purpose: 'Higher-power laser for deeper brainstem and cerebellum penetration.' },
+      { name: 'PEMF mat', purpose: 'Whole-body pulsed electromagnetic field for sleep regulation and inflammation.' }
+    ],
+    addOnsNote: 'These come prescribed by Kyle after the intake assessment — not all Profile B children get all three.',
+    schedule: {
+      active: 'Daily M-F concierge plus 3-4× weekly OT/PT. ~10 sessions per active week.',
+      sample: '60-90 min daily protocol — split AM, midday, PM.'
+    },
+    daily: {
+      totalMin: '~75 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~25 min',
+        items: [
+          'Class 3B laser to L + R cerebellum (3 min each side)',
+          'Class 3B laser to L + R vagus + abdomen (3 min each)',
+          'Stimpod cymba concha L + R (90 sec each side)',
+          'Vagus oil applied to neck + peppermint to right nostril',
+          'Blue glasses with metronome (35-55 BPM) for 15 min',
+          'TENS on left paraspinal (concurrent with metronome)',
+          'Shen Men beads placed for the day'
+        ],
+        expects: 'This block looks intense on paper but flows quickly with a routine. Most B families build it around a morning show. Skipping it shows up as dysregulation by lunch.'
+      },
+      midday: {
+        when: 'Active block — clinical-led',
+        duration: '~25 min',
+        items: [
+          'Hub session guided by concierge over video (20 min)',
+          'Stimpod tongue stim: left / middle / right (30 sec each)',
+          'Stimpod face stim: rooting + masseter (2 min each side)',
+          'Speech protocol — CN-targeted sound sets (5 min)',
+          'PEMF mat sit (20 min — overlaps with Hub)',
+          'Wheelbarrow walk — 10 steps × 2 if motor coordination work assigned'
+        ],
+        expects: 'This is where most of the gains compound. Concierge is on video coaching in real time. If something feels off, say so — the protocol gets adjusted on the spot.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~25 min',
+        items: [
+          'Reflex sequence — rotating through 4-5 reflexes (8 min)',
+          'Cross-crawl exercises (2-3 min)',
+          'Brachiation / hang-from-bar if motor delay (1-2 min)',
+          'TENS up and down spine, then bottom-of-feet laser (5 min total)',
+          'Better Sleep frequency on LED panel (10 min before bed)',
+          'Olfactory wind-down: rosemary L, peppermint R',
+          'PEMF mat in sleep mode through the night (optional)'
+        ],
+        expects: 'The biggest block of the day. By week 4-5 the family has it choreographed. The sleep prep at the end (Better Sleep + olfactory) is what turns the day off — kids settle visibly.'
+      },
+      progression: 'Boot camp weeks 1-2 introduce the kit and supplements; daily protocol builds toward full intensity by week 3. Lab results return week 4-6 and biomedical layer is titrated. Weeks 7-9 are peak intensity. Weeks 10-12 transition cadence steps down — by graduation the family is independent on the daily protocol.'
+    }
+  },
+  C: {
+    letter: 'C',
+    name: 'Regression / Inflammatory',
+    color: 'var(--prof-c)',
+    softColor: 'var(--prof-c-soft)',
+    tagline: 'Was developing typically, then something changed.',
+    short: 'Typical development, then regression linked to environmental insult — mold, water damage, a new home.',
+    description: [
+      "Your child was hitting milestones. Words were coming. Social engagement was there. Then — somewhere between 18 months and 3 years for most — things slid backwards. Words disappeared. Eye contact thinned. Behaviors changed.",
+      "When we see this pattern, we look hard at the environment. Water damage in the home. A renovation. Recurrent infections. A move to a new house. Something flipped the immune system into chronic inflammation, and the developing brain caught the brunt of it.",
+      "The neurological work matters, but the bigger lever is biomedical. Get the inflammation down — clear the mycotoxins, restore the gut, support methylation — and the neurological gains often come faster than expected once that load is off."
+    ],
+    presentation: { Onset: '18-36 months regression', Reflexes: 'Borderline integration', Verbal: 'Lost words', Biomedical: 'Heavy — mold focus' },
+    intensity: 'MID',
+    tier: 'accelerated',
+    approach: [
+      { title: 'Full diagnostic up front', desc: 'Total Tox Burden is the lab that matters most. Mycotoxin section drives the next 6 weeks.' },
+      { title: 'Anti-inflammatory diet', desc: 'Whole-foods, low-carb, gluten-free starting in week 1 — even before the labs come back.' },
+      { title: 'Photobiomodulation heavy', desc: 'LED panel and laser used aggressively for inflammation and detox support.' },
+      { title: 'Stage 1 neurological', desc: 'Cranial nerves and vagal regulation primary. Reflex work is lighter — most of the lift comes from biomedical correction.' }
+    ],
+    addOns: [
+      { name: 'Sinus Key (binding swab)', purpose: 'For chronic sinus mold colonization, on indication from Total Tox.' },
+      { name: 'Extra LED panels', purpose: 'For families wanting longer photobiomodulation sessions during heavy detox phases.' }
+    ],
+    addOnsNote: 'Profile C add-ons are biomedical-supportive rather than neurological-add-ons. Diet and supplements do the heavy lifting alongside the foundational kit.',
+    schedule: {
+      active: '2-3× weekly OT/PT plus concierge for biomedical guidance. ~7 sessions per active week.',
+      sample: '40-60 min daily protocol heavy on PBM and gut work.'
+    },
+    daily: {
+      totalMin: '~50 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~18 min',
+        items: [
+          'LED panel session — frequency varies by week (15 min)',
+          'Laser over abdomen / liver / RUQ (5 min — concurrent with LED)',
+          'Peppermint to right nostril + vagus oil applied',
+          'Daily supplement stack: Intramax + Gut Feeling + lab-targeted additions',
+          'Shen Men beads placed',
+          'Anti-inflammatory breakfast (Paleo-style, gluten-free, low-glycemic)'
+        ],
+        expects: 'PBM (the LED panel) is the lever for inflammation. The 15-min morning session is non-negotiable. Skip days will show in mood and behavior within 48 hours.'
+      },
+      midday: {
+        when: 'Mid-day or after-school block',
+        duration: '~15 min',
+        items: [
+          'Hub session — calmer games when inflammation is high (15 min)',
+          'Gut/Immune laser: 5 min over each gut quadrant (or condensed during flares)',
+          'Vagal oil reapplied to neck',
+          'Anti-inflammatory snack with electrolytes',
+          'TENS on left paraspinal (concurrent with Hub)'
+        ],
+        expects: 'Profile C kids often have lower energy in the early weeks of biomedical work — the immune system is recalibrating. Don\'t fight a low-energy day; lean into it.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~18 min',
+        items: [
+          'Laser to L + R cerebellum (3 min each side)',
+          'Laser to brainstem region (3 min)',
+          'TENS over left paraspinal (5 min)',
+          'Bottom-of-feet laser for detox support (3 min)',
+          'PEMF mat for sleep prep (15-20 min)',
+          'Olfactory wind-down: rosemary + lavender'
+        ],
+        expects: 'Sleep is often the first thing to improve in Profile C — usually within weeks 2-3. Detox can intensify dreams temporarily; this passes by week 4-5.'
+      },
+      progression: 'Weeks 1-2: diet starts day 1, supplements ship with the kit, neurological work is light. Weeks 3-6: lab results return; biomedical protocol gets specific (mycotoxin binders if Total Tox positive). Weeks 7-9: as inflammation drops, neurological gains accelerate. Weeks 10-12: stabilize and transition to maintenance.'
+    }
+  },
+  D: {
+    letter: 'D',
+    name: 'Mild / Hemispheric',
+    color: 'var(--prof-d)',
+    softColor: 'var(--prof-d-soft)',
+    tagline: 'Almost there — just needs the right tuning.',
+    short: 'Most milestones met. Specific weaknesses (vestibular, eye tracking, attention, dominance) standing out.',
+    description: [
+      "Your child is mostly on track. Speech is there. Most reflexes integrated. Social engagement reasonable. But something is off — maybe it's coordination, eye-tracking, focus, dominance not yet established, sensory quirks, or specific academic struggles.",
+      "What's underneath: a hemispheric imbalance. One side of the brain is doing more work than the other. The picture isn't dramatic — but it's real, and it shows up in the things you've been quietly noticing for months.",
+      "This is the most common path through our program. The work is lighter, the protocol shorter, but the gains can be sharp because we're tuning a brain that's already mostly in place."
+    ],
+    presentation: { Onset: 'From birth, mild', Reflexes: 'Mostly integrated', Verbal: 'Yes', Biomedical: 'Light — Paleo focus' },
+    intensity: 'LIGHT',
+    tier: 'foundation',
+    approach: [
+      { title: 'Hemispheric pairing daily', desc: 'Right-brain stim (blue glasses + peppermint + left-side TENS) becomes the spine of the daily 30 minutes.' },
+      { title: 'Vestibular and eye tracking', desc: 'Specific OT exercises matched to the weak channel — coordination, balance, visual scanning.' },
+      { title: 'Hub games', desc: 'Tunnel and Roll-A-Ball anchor the right-brain training in something the child enjoys.' },
+      { title: 'Lighter biomedical', desc: 'Universal labs (Stool + OAT) only. Often a single supplement focus rather than a heavy stack.' }
+    ],
+    addOns: [],
+    addOnsNote: 'No add-ons typically needed. Profile D is the modal NeuroHome family — the foundational kit covers it.',
+    schedule: {
+      active: 'Weekly OT/PT plus concierge check-ins. ~5 sessions per active week, lighter cadence.',
+      sample: '20-30 min daily protocol.'
+    },
+    daily: {
+      totalMin: '~28 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~10 min',
+        items: [
+          'Blue glasses with rhythmic music in left ear (10 min — passive, runs while child eats or plays)',
+          'Peppermint to right nostril (concurrent)',
+          'Laser to L + R cerebellum (1-2 min each side)',
+          'Shen Men beads placed for the day'
+        ],
+        expects: 'The simplest morning of any profile. Most D families do it during breakfast — five minutes of dedicated time, plus passive blue-glasses time.'
+      },
+      midday: {
+        when: 'Mid-day or after-school block',
+        duration: '~12 min',
+        items: [
+          'Hub session — Tunnel or Roll-A-Ball (15 min)',
+          'TENS on left paraspinal (concurrent with Hub)',
+          'ONE OT-assigned targeted exercise — picked by the weak channel:',
+          'If vestibular: balance beam walk + single-leg stands (2 min)',
+          'If eye tracking: lazy 8s + ball toss (2-3 min)',
+          'If fine motor: bilateral coordination drill (2 min)'
+        ],
+        expects: 'The OT assigns ONE thing per week to focus on. Don\'t do all three — do the assigned one well. Add the next when the first is solid.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~6 min',
+        items: [
+          'Vibration to left arm (1 min)',
+          'Vibration to left leg (1 min)',
+          'TENS paraspinal (3 min — only on cued days)',
+          'Peppermint + rosemary collar reapplied'
+        ],
+        expects: 'D is a "less is more" profile. The plan looks light because it is — but consistency matters more than volume. Same 28 minutes, daily, for 12 weeks.'
+      },
+      progression: 'Weeks 1-2 are about installing the routine. Weeks 3-9 lock it in. Weeks 10-12 most D families have already integrated this into the daily rhythm — gains compound from the consistency, not the intensity.'
+    }
+  },
+  E: {
+    letter: 'E',
+    name: 'Acquired / Hypoxic',
+    color: 'var(--prof-e)',
+    softColor: 'var(--prof-e-soft)',
+    tagline: 'Recovery from a clear event.',
+    short: 'Acquired brain injury or hypoxic event — birth complications, oxygen deprivation, post-illness regression.',
+    description: [
+      "Your child had a clear event. Birth was complicated. Or there was an oxygen-deprivation episode. Or a serious illness, surgery, or injury that left things different on the other side. The story has a before and after.",
+      "What's happening: specific neural networks took a hit. The cerebellum and brainstem are particularly vulnerable to hypoxia. Motor planning, balance, and coordination are typically the most affected, but cognitive and behavioral changes can show up too.",
+      "Recovery is real and ongoing — the brain doesn't stop healing. Our job is to give it the right input. Targeted photobiomodulation. Laser to specific recovery sites. Vagal regulation. The work is precise rather than broad."
+    ],
+    presentation: { Onset: 'Specific event', Reflexes: 'Variable', Verbal: 'Variable', Biomedical: 'Moderate panel' },
+    intensity: 'MID',
+    tier: 'accelerated',
+    approach: [
+      { title: 'Site-specific PBM', desc: 'Class 3B laser to cerebellum and brainstem — the hypoxia-vulnerable structures get the most attention.' },
+      { title: 'Vagal regulation', desc: 'Heavy emphasis on parasympathetic recovery — Stimpod cymba concha work daily.' },
+      { title: 'Motor planning rebuild', desc: 'OT focuses on rebuilding the affected motor pathways with structured progression.' },
+      { title: 'Full diagnostic', desc: 'NeuroZoom and Total Tox to rule out compounding inflammation that could be slowing recovery.' }
+    ],
+    addOns: [
+      { name: 'Class 3B Laser', purpose: 'Deeper penetration for the affected neural structures.' },
+      { name: 'Stimpod NMS460', purpose: 'Vagal cymba concha + facial nerve recovery work.' },
+      { name: 'PEMF', purpose: 'Optional — for sleep restoration during recovery.' }
+    ],
+    addOnsNote: 'Add-ons selected based on the specific area of injury — recovery is targeted rather than broad.',
+    schedule: {
+      active: '2-3× weekly OT/PT plus concierge for protocol adjustment. ~7 sessions per active week.',
+      sample: '45-60 min daily protocol focused on affected pathways.'
+    },
+    daily: {
+      totalMin: '~55 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~20 min',
+        items: [
+          'Class 3B laser to specific recovery sites — typically cerebellum + brainstem (5 min each)',
+          'Stimpod cymba concha L + R (90 sec each side)',
+          'Hemispheric pairing routine: blue glasses + peppermint + left-side TENS (12 min)',
+          'Vagus oil applied to neck',
+          'Shen Men beads placed for the day'
+        ],
+        expects: 'Site-specificity matters most for E. Generic full-body protocols don\'t move the needle; targeted protocols at the affected structure do. The OT confirms placement during weekly check-ins.'
+      },
+      midday: {
+        when: 'Active block',
+        duration: '~17 min',
+        items: [
+          'Hub session matched to motor planning needs (15 min)',
+          'OT-assigned motor exercise of the day (varies — balance beam, cross-crawl, fine motor)',
+          'Vagal oil reapplied',
+          'Stimpod placement on affected side (5 min)',
+          'Visual tracking: lazy 8s + brock string if cerebellar work assigned (3 min)'
+        ],
+        expects: 'Motor planning rebuilds slowly. Week 1 might feel discouraging; week 4 is when families typically see the first sharp gain. Hold the line — recovery is non-linear.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~18 min',
+        items: [
+          'LED panel — frequency assigned by week (15 min)',
+          'TENS up and down spine (5 min — concurrent with LED)',
+          'Bottom-of-feet laser for parasympathetic prep (3 min)',
+          'Olfactory wind-down: rosemary L, peppermint R',
+          'PEMF mat for sleep (optional, 15 min)'
+        ],
+        expects: 'Sleep quality is one of the earliest wins in Profile E — many parents report it improving inside the first two weeks. Protect the wind-down block; it\'s where consolidation happens.'
+      },
+      progression: 'Weeks 1-2: targeted PBM and vagal work begin; family learns precise placement. Weeks 3-6: Hub and motor exercises ramp up as tolerance improves. Weeks 7-9: peak intensity — this is where most of the rebuild compounds. Weeks 10-12: cadence steps down; Continuing Care plan discussed.'
+    }
+  },
+  F: {
+    letter: 'F',
+    name: 'PANS / PANDAS',
+    color: 'var(--prof-f)',
+    softColor: 'var(--prof-f-soft)',
+    tagline: 'Sudden behavioral storm — autoimmune brain inflammation.',
+    short: 'Sudden onset of OCD, tics, anxiety, regression — typically following infection (strep, viral).',
+    description: [
+      "Your child changed almost overnight. New OCD-like behaviors. Sudden anxiety. Tics. Anger that wasn't there. Maybe regression in handwriting, eating, or toileting. The before-and-after timeline is sharp — often weeks rather than months.",
+      "What's happening: the immune system, triggered by an infection (strep is classic, but it can be viral or other), starts producing antibodies that cross the blood-brain barrier and attack the basal ganglia. The behavior changes are inflammation in real time.",
+      "This is treatable. The neurological work matters, but the lever is anti-inflammatory and infection-clearing. Once the immune storm is calmed, the behaviors usually pull back. The plan combines biomedical and vagal regulation in a way the other profiles don't."
+    ],
+    presentation: { Onset: 'Sudden post-infection', Reflexes: 'Variable', Verbal: 'Was on track', Biomedical: 'Heavy — neuro-immune' },
+    intensity: 'MID-HIGH',
+    tier: 'accelerated',
+    approach: [
+      { title: 'Neural Zoomer Plus first', desc: 'The bloodborne infection markers (Group A Strep, EBV, HSV, HHV) drive the next 8 weeks of biomedical work.' },
+      { title: 'Vagal calm protocol', desc: 'Stimpod cymba concha + Rezzimax + VIP nasal work — calming the autonomic system is half the battle.' },
+      { title: 'Anti-inflammatory laser', desc: 'Daily laser to face, jaw, and brain to reduce neuro-inflammation directly.' },
+      { title: 'Diet & supplements', desc: 'Anti-inflammatory diet from week 1. Supplement stack designed around methylation and immune calm.' }
+    ],
+    addOns: [
+      { name: 'Stimpod NMS460', purpose: 'Vagus and facial nerve regulation — cymba concha is the key point.' },
+      { name: 'Rezzimax tuner', purpose: 'Vibrational vagal regulation, used at home during behavioral flares.' },
+      { name: 'VIP nasal spray', purpose: 'Vasoactive intestinal peptide for blood-brain barrier sealing (clinician-prescribed).' }
+    ],
+    addOnsNote: 'Profile F add-ons are about calming the autonomic and immune systems — they\'re heavily layered onto the foundational kit during active flares.',
+    schedule: {
+      active: '2-3× weekly OT/PT plus concierge daily during flares. ~8 sessions per active week.',
+      sample: '50-70 min daily protocol with flare-day rescue protocol.'
+    },
+    daily: {
+      totalMin: '~60 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~22 min',
+        items: [
+          'Stimpod cymba concha L + R (90 sec each side)',
+          'Vagus oil + Rezzimax up the spine (5 min)',
+          'Anti-inflammatory laser to face and jaw (3 min each side)',
+          'Anti-inflammatory laser to forehead / temples (3 min)',
+          'Olfactory: rosemary L, peppermint R',
+          'Blue glasses with calming frequency (10 min)',
+          'Anti-inflammatory breakfast (Paleo, gluten-free)'
+        ],
+        expects: 'Mornings can be the hardest part of the day for F kids — autoimmune storms peak overnight. Build the routine during a calm window first, then run it even on bad mornings. Consistency matters more than perfect execution.'
+      },
+      midday: {
+        when: 'Mid-day or after-school block',
+        duration: '~18 min',
+        items: [
+          'Hub session — calmer game selection (15 min)',
+          'VIP nasal spray, 1 spray per nostril (clinician-prescribed)',
+          'Peppermint to right nostril for grounding',
+          'Light snack with anti-inflammatory ingredients',
+          'TENS on left paraspinal — calm setting (concurrent)'
+        ],
+        expects: 'Hub games can be a regulating tool during low-grade flares. If your child can\'t tolerate the chosen game, pivot to a calmer module — don\'t push.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~20 min',
+        items: [
+          'LED panel for full-brain anti-inflammatory (15 min)',
+          'TENS up and down spine — calm settings (5 min)',
+          'Better Sleep laser routine before bed (5 min)',
+          'PEMF mat for sleep (15-20 min — overlaps)',
+          'Olfactory wind-down: rosemary + lavender',
+          'Bottom-of-feet laser for parasympathetic prep'
+        ],
+        expects: 'Sleep is medicine for Profile F. Protect it ruthlessly — screens off 60 min before bed, room dark and cool, sleep prep block executed every night, even when life is chaotic.'
+      },
+      flare: 'On flare days, ADD to the regular protocol: Custom protocol over left temple at 1-2 Hz for 3 min, Brainwave Endorphin Release near left ear for 3-5 min, Rezzimax up and down left side of spine, calming-frequency LED for an extra 20 min. Concierge available on video for support.',
+      progression: 'Weeks 1-2: vagal calm protocol installed first; biomedical labs pulled. Weeks 3-6: NeuroZoom Plus results back, infection-clearing protocol begins. Weeks 7-9: behaviors typically start pulling back as inflammation drops. Weeks 10-12: maintenance protocol established; flare-day protocol kept on standby.'
+    }
+  }
+};
+
+const FOUNDATIONAL_KIT = [
+  { cat: 'Photobiomodulation', name: 'LED Light Panel', purpose: 'Frequency-tunable for full-brain stimulation.' },
+  { cat: 'Laser', name: 'LED Laser NSH', purpose: 'Eye-safe foundational laser — vagus, cerebellum, abdomen, all the standard placements.' },
+  { cat: 'Neuromuscular E-stim', name: 'SaeboStim Pro 4-in-1', purpose: 'Cranial nerve, paraspinal, acupressure point stim.' },
+  { cat: 'Sensory · Vision', name: 'Blue Glasses with Eye Lights', purpose: 'Right-brain visual stimulation paired with rhythmic music.' },
+  { cat: 'Sensory · Olfactory', name: 'Essential Oils Kit', purpose: 'Rosemary (left brain) and peppermint/frankincense (right brain).' },
+  { cat: 'Acupressure', name: 'Shen Men Beads', purpose: 'Auricular acupressure pre/post sessions.' },
+  { cat: 'Software', name: 'NeuroSage Hub', purpose: 'Right-brain video game library with 3 months included.' }
+];
+
+const SUPPLEMENTS = [
+  { cat: 'Multivitamin', name: 'Intramax', purpose: 'Liquid foundational multivitamin and mineral complex. Full 3-month supply included.' },
+  { cat: 'Gut-axis', name: 'Gut Feeling', purpose: 'Peptide and gut-support formulation. Restores GI integrity from day one.' }
+];
+
+const TIERS = {
+  foundation: {
+    name: 'Foundation',
+    philosophy: '"We\'ll teach you, then you run with it."',
+    price: '$9,000',
+    badge: 'Best fit',
+    stats: [
+      { num: '25', label: 'Total clinical hrs' },
+      { num: '23', label: 'Scheduled meetings' },
+      { num: '20-50', label: 'Daily protocol min' },
+      { num: '12', label: 'Weeks' }
+    ],
+    includes: [
+      '9 hrs OT/PT clinical time',
+      '14 hrs Concierge guided coaching',
+      '1.5 hrs MD oversight',
+      'Foundational kit (7 devices)',
+      '3-month supplement supply',
+      'Universal labs (Stool + OAT)',
+      'NeuroSage Hub (3 mo)',
+      'ATEC tracking baseline / Wk 6 / Wk 12'
+    ]
+  },
+  accelerated: {
+    name: 'Accelerated',
+    philosophy: '"A healthy mix of guided and at-home work."',
+    price: '$15,000',
+    badge: 'Best fit · Recommended',
+    stats: [
+      { num: '35.5', label: 'Total clinical hrs' },
+      { num: '33', label: 'Scheduled meetings' },
+      { num: '40-60', label: 'Daily protocol min' },
+      { num: '12', label: 'Weeks' }
+    ],
+    includes: [
+      '13 hrs OT/PT (vs. 9) — twice weekly active',
+      '20 hrs Concierge — twice-weekly check-ins',
+      '2.5 hrs MD oversight',
+      'Foundational kit + supplements',
+      'Full diagnostic labs included',
+      'Pre & mid consultation',
+      'Bi-weekly MD chart review',
+      'NeuroSage Hub (3 mo)'
+    ]
+  },
+  immersive: {
+    name: 'Immersive',
+    philosophy: '"We\'ll be with you every day, walking you through it."',
+    price: '$19,000',
+    badge: 'Best fit',
+    stats: [
+      { num: '54', label: 'Total clinical hrs' },
+      { num: '50.5', label: 'Scheduled meetings' },
+      { num: '60-90', label: 'Daily protocol min' },
+      { num: '12', label: 'Weeks' }
+    ],
+    includes: [
+      '18.5 hrs OT/PT — 3-4× weekly',
+      '32 hrs Concierge — daily M-F',
+      '3.5 hrs MD — bi-weekly Kyle involvement',
+      'Foundational kit + supplements',
+      'Full diagnostic labs included',
+      'Pre & post comprehensive consultation',
+      'Saturday weekly deep-dive sessions',
+      'Priority scheduling and clinical access'
+    ]
+  }
+};
+
+const PHASES = [
+  { tag: 'Phase 1', title: 'Boot Camp', weeks: 'Weeks 1-2', desc: 'Kit unboxing, baseline ATEC, OT and Concierge intensives, daily routine installed. We meet you 2-3 times a week to make sure the protocol is sticking.' },
+  { tag: 'Phase 2', title: 'Active Treatment', weeks: 'Weeks 3-9', desc: 'Daily home protocol with regular check-ins. Lab results return between weeks 4-6, biomedical layer titrated. ATEC re-assessed at week 6 to track gains.' },
+  { tag: 'Phase 3', title: 'Transition', weeks: 'Weeks 10-12', desc: 'Cadence steps down, protocol stabilizes, family is running it independently. Final ATEC and exit consultation. Continuing care plan if appropriate.' }
+];
+
+/* ═════════════════════════════════════════════════
+   TEAM — placeholder content; swap in real bios + photos
+   ═════════════════════════════════════════════════ */
+const TEAM = [
+  {
+    initials: 'KD',
+    name: 'Dr. Kyle Daigle',
+    title: 'Founder · Functional Neurologist',
+    bio: 'Fifteen-plus years working with children diagnosed across the autism spectrum, PANS/PANDAS, and acquired brain injuries. Built NeuroSolution because the standard system didn\'t have answers for the families who walked through his door.'
+  },
+  {
+    initials: 'JS',
+    name: 'Dr. Jared Siegler',
+    title: 'Medical Director · Lab Review',
+    bio: 'Reviews diagnostic panels — Stool, OAT, Total Tox, Neural Zoomer Plus — and prescribes biomedical interventions. Bi-weekly chart involvement on every Accelerated and Immersive case.'
+  },
+  {
+    initials: 'OT',
+    name: 'OT / PT Team',
+    title: 'Clinical Therapy',
+    bio: 'Pediatric OTs and PTs run the live sessions: reflex testing, motor planning work, vestibular and visual exercises. Twice-weekly to thrice-weekly contact in active phases, depending on tier.'
+  }
+];
+
+const COHORT_STAT = {
+  num: '41',
+  label: 'children classified into the 6 profiles',
+  detail: 'The profile patterns and prescriptions you see here are pulled from 41 pediatric cases we\'ve worked through, ranging from 6-month-old hypoxic recovery to 14-year-old PANS/PANDAS. The classification system is based on real clinical data — not theory.'
+};
+
+/* ═════════════════════════════════════════════════
+   PATIENT STORIES — illustrative composites; swap with consented testimonials
+   18 stories, 3 per profile. Color/soft derived from profile object at render time.
+   ═════════════════════════════════════════════════ */
+const STORIES = [
+  /* ── Profile A ─────────────────────────── */
+  {
+    name: 'Lucas', age: 4, profileLetter: 'A',
+    arc: '<strong>Before:</strong> Limited words at 4. Got frustrated easily. Pulled away from playgroups. <strong>Twelve weeks later:</strong> Three- and four-word sentences. Asking questions. Initiating play with cousins for the first time.',
+    quote: 'The first time he asked me where the dog was — actually asked, with words — I had to leave the room and cry.',
+    attribution: '— Lucas\'s mom'
+  },
+  {
+    name: 'Sebastian', age: 3, profileLetter: 'A',
+    arc: '<strong>Before:</strong> Non-verbal at 3. Autism diagnosis six months earlier. ATEC of 87. <strong>Twelve weeks later:</strong> First clear words. Pointing to request things. ATEC down to 64.',
+    quote: 'We\'d been told to manage expectations. After the first word came, the second was three days later. The fourth was that same week.',
+    attribution: '— Sebastian\'s parents'
+  },
+  {
+    name: 'Mia', age: 5, profileLetter: 'A',
+    arc: '<strong>Before:</strong> Two-word phrases at 5. Daily sensory meltdowns. Couldn\'t tolerate group settings. <strong>Twelve weeks later:</strong> Full sentences. Half the meltdowns gone. Started kindergarten on her birthday.',
+    quote: 'She walked into kindergarten on day one and didn\'t cry at drop-off. I was the one who cried, in the parking lot.',
+    attribution: '— Mia\'s mom'
+  },
+
+  /* ── Profile B ─────────────────────────── */
+  {
+    name: 'Adam', age: 6, profileLetter: 'B',
+    arc: '<strong>Before:</strong> Severe presentation. Non-verbal. Significant gut issues. Multiple meltdowns daily. <strong>Twelve weeks of Immersive:</strong> First sustained eye contact in years. Sleeping through the night. Storms half as frequent.',
+    quote: 'We weren\'t expecting language yet. We got something more important — we got our family functioning again.',
+    attribution: '— Adam\'s parents'
+  },
+  {
+    name: 'Daniel', age: 4, profileLetter: 'B',
+    arc: '<strong>Before:</strong> Limited speech. Severe food sensitivities. Daily behavioral challenges. Mom hadn\'t slept through a night in 18 months. <strong>Twelve weeks later:</strong> Sleeping. Eating a wider variety. Words emerging.',
+    quote: 'The first month, the gains were quiet — sleep, less screaming. By week 8 we realized we\'d stopped white-knuckling every dinner.',
+    attribution: '— Daniel\'s mom'
+  },
+  {
+    name: 'Sofia', age: 7, profileLetter: 'B',
+    arc: '<strong>Before:</strong> Late diagnosis. Multiple developmental gaps. Significant biomedical findings — gut, mitochondrial, methylation. <strong>Twelve weeks combined:</strong> Speech progress, behavioral regulation, gut symptoms calming.',
+    quote: 'I\'d given up on hearing her say my name. She said it on a Tuesday in week 9. I wrote the date down somewhere I can see it.',
+    attribution: '— Sofia\'s mom'
+  },
+
+  /* ── Profile C ─────────────────────────── */
+  {
+    name: 'Maya', age: 7, profileLetter: 'C',
+    arc: '<strong>Before:</strong> Lost most of her language and stopped sleeping after a basement renovation. Total Tox showed mycotoxins through the roof. <strong>Twelve weeks later:</strong> Sleeping through the night. Sentences returning. The girl her grandparents remember.',
+    quote: 'For two years we didn\'t know what happened to her. The labs gave us a picture. The protocol gave us our daughter back.',
+    attribution: '— Maya\'s parents'
+  },
+  {
+    name: 'Henry', age: 5, profileLetter: 'C',
+    arc: '<strong>Before:</strong> Lost language at 3 after a move to a water-damaged rental. Pediatrician said "wait and see." We waited two years. <strong>Twelve weeks of biomedical-led work:</strong> First full sentences in two years. Sleep restored.',
+    quote: 'The mold report explained everything we\'d been missing. The recovery — we still pinch ourselves every day.',
+    attribution: '— Henry\'s dad'
+  },
+  {
+    name: 'Aria', age: 6, profileLetter: 'C',
+    arc: '<strong>Before:</strong> Regression around age 3 after our home renovation. Behaviors elevated, sleep gone, language lost. <strong>Twelve weeks of inflammation-first protocol:</strong> Words returning, behaviors softening, family stable again.',
+    quote: 'I stopped grieving the child she was. By week 8 I realized she was coming back.',
+    attribution: '— Aria\'s mom'
+  },
+
+  /* ── Profile D ─────────────────────────── */
+  {
+    name: 'Ezra', age: 3, profileLetter: 'D',
+    arc: '<strong>Before:</strong> Clumsy. Couldn\'t catch a ball. Anxious on playground equipment. Preschool flagged coordination concerns. <strong>Twelve weeks later:</strong> Riding a balance bike. Catching tennis balls. Confident on the play structures.',
+    quote: 'I expected language and academic stuff. I didn\'t expect him to actually start liking his own body.',
+    attribution: '— Ezra\'s mom'
+  },
+  {
+    name: 'Olivia', age: 8, profileLetter: 'D',
+    arc: '<strong>Before:</strong> Smart kid struggling in school. Reading lagged. Attention drifted. Tutor said "she\'s not lazy — something\'s off neurologically." <strong>Twelve weeks later:</strong> Reading clicked. Her teacher emailed asking what we\'d changed.',
+    quote: 'We weren\'t sure she even fit the program. Her gains weren\'t dramatic — they were exactly the right ones.',
+    attribution: '— Olivia\'s mom'
+  },
+  {
+    name: 'Theo', age: 6, profileLetter: 'D',
+    arc: '<strong>Before:</strong> Visual tracking issues, balance struggles, falling more than peers. Confidence shrinking. <strong>Twelve weeks later:</strong> Athletic again. Bike riding. Joined a soccer team without me bracing for tears.',
+    quote: 'He raised his hand in class for the first time. The teacher emailed me about it. That was week 10.',
+    attribution: '— Theo\'s dad'
+  },
+
+  /* ── Profile E ─────────────────────────── */
+  {
+    name: 'Jonah', age: 2, profileLetter: 'E',
+    arc: '<strong>Before:</strong> Birth complications, oxygen issues. Motor delays evident by 18 months. <strong>Twelve weeks of targeted PBM and motor work, starting at 22 months:</strong> Standing unassisted. First independent steps. Receptive language emerging.',
+    quote: 'We\'d been told he might never walk independently. We don\'t take a single step for granted.',
+    attribution: '— Jonah\'s parents'
+  },
+  {
+    name: 'Audrey', age: 5, profileLetter: 'E',
+    arc: '<strong>Before:</strong> Severe post-viral regression at 4 — lost speech and motor coordination over six weeks. Pediatric neurologist had no protocol to offer. <strong>Twelve weeks later:</strong> Speech returning, motor function rebuilding.',
+    quote: 'The neurologist said "we don\'t know what to do." Kyle said "we know exactly where to start." That\'s why we\'re here.',
+    attribution: '— Audrey\'s mom'
+  },
+  {
+    name: 'Marcus', age: 4, profileLetter: 'E',
+    arc: '<strong>Before:</strong> Hypoxic event during illness at 18 months. Cerebellar findings on MRI. <strong>Twelve weeks of targeted PBM and Stimpod work:</strong> Significant motor planning gains. Eye tracking visibly improving.',
+    quote: 'The MRI scared us so much we stopped looking at it. Now we frame the before-and-after of week 12.',
+    attribution: '— Marcus\'s dad'
+  },
+
+  /* ── Profile F ─────────────────────────── */
+  {
+    name: 'Charlotte', age: 9, profileLetter: 'F',
+    arc: '<strong>Before:</strong> Sudden OCD onset after strep at age 8. Two hospitalizations. Missed half of second grade. Refused to leave her room. <strong>Twelve weeks later:</strong> Stable. Back in school full-time. OCD manageable with the protocol on standby for flares.',
+    quote: 'She came back to us. That\'s the only way I know how to say it. She came back.',
+    attribution: '— Charlotte\'s dad'
+  },
+  {
+    name: 'Beatrix', age: 11, profileLetter: 'F',
+    arc: '<strong>Before:</strong> Sudden tics and anxiety after a virus at 10. Personality changed almost overnight. School year nearly lost. <strong>Twelve weeks later:</strong> Tics reduced significantly. Anxiety manageable. Beatrix returning.',
+    quote: 'For a while I lost my daughter to whatever was attacking her brain. The protocol gave her back to herself.',
+    attribution: '— Beatrix\'s mom'
+  },
+  {
+    name: 'Owen', age: 7, profileLetter: 'F',
+    arc: '<strong>Before:</strong> Strep-triggered behavioral storm at 6. New OCD, separation anxiety, school refusal. <strong>Twelve weeks of vagal-calm + infection-clearing protocol:</strong> Calm. School. Friends again. Flare protocol on standby.',
+    quote: 'We have a kid again. Not a perfect kid — he never was. But our kid. Hyper, funny, kind. The kid we knew.',
+    attribution: '— Owen\'s parents'
+  }
+];
+
+/* Which profiles to feature on the welcome page (one story from each) */
+const WELCOME_STORY_LETTERS = ['A', 'C', 'F'];
+
+function getStoriesForProfile(letter) {
+  return STORIES.filter(s => s.profileLetter === letter);
+}
+
+function getWelcomeStories() {
+  return WELCOME_STORY_LETTERS.map(letter =>
+    STORIES.find(s => s.profileLetter === letter)
+  );
+}
+
+/* Reusable story-card renderer — pulls color from the profile lookup */
+function renderStoryCards(stories) {
+  return stories.map(s => {
+    const prof = profiles[s.profileLetter];
+    return `
+    <div class="story-card" style="--story-color: ${prof.color}; --story-soft: ${prof.softColor}">
+      <div class="story-header">
+        <div class="story-name">${s.name}, ${s.age}</div>
+        <div class="story-meta">Profile ${s.profileLetter}</div>
+      </div>
+      <div class="story-arc">${s.arc}</div>
+      <div class="story-quote">${s.quote}</div>
+      <div class="story-attribution">${s.attribution}</div>
+    </div>
+  `;
+  }).join('');
+}
+
+/* ═════════════════════════════════════════════════
+   CHANGE PATTERNS — what neuroplastic change typically looks like, per profile
+   Honest framing: trajectory, not promises. Mirrors clinical voice.
+   ═════════════════════════════════════════════════ */
+const CHANGE_PATTERNS = {
+  A: {
+    early: 'Better sleep. Calmer transitions. Reduced sensory overwhelm. Reflexes feel softer when re-tested. The nervous system is starting to settle — the foundation gains build on.',
+    middle: 'Increased engagement. Eye contact warming. New sounds, syllables, or first words. Reflex responses changing. Sensory tolerance widening.',
+    late: 'Longer attention spans. Motor planning gains showing in coordination. Functional skills emerging — words combining, intentional play. Compensation patterns starting to release.'
+  },
+  B: {
+    early: 'Sleep improvements typically come first. Behavioral storms reduce in frequency or intensity. Family regains breathing room and the daily routine takes hold.',
+    middle: 'Lab-guided biomedical layer kicks in. Primitive reflexes start releasing. Sensory tolerance widens. Family starts to see "moments" of their child more frequently.',
+    late: 'Compounding gains across speech, motor, and regulation — sometimes unevenly. Trajectory matters more than day-to-day variation. Many B families describe a clear "turn" around week 8-10.'
+  },
+  C: {
+    early: 'Diet and supplement effects show up early — sometimes as energy shifts, mood changes, or mild healing reactions (normal, temporary). Sleep typically improves.',
+    middle: 'As inflammation drops, words start coming back. Eye contact returns. Elevated behaviors begin to soften. The "before" child families remember begins to resurface.',
+    late: 'Functional language. Renewed engagement. Behavioral stability. Earlier-developing skills tend to come back first; newer skills follow.'
+  },
+  D: {
+    early: 'Coordination starts to feel more automatic. Less effort in activities that were straining. Sleep often deepens.',
+    middle: 'The targeted weak channel — vestibular, eye tracking, attention — shows clear progress. Confidence noticeably increases. Athletic and academic gains often appear together.',
+    late: 'Skills consolidate. Activities that were hard 12 weeks ago feel routine. The hemispheric balance is more even — and parents often hear unsolicited feedback from teachers.'
+  },
+  E: {
+    early: 'Sleep quality typically improves first. Specific motor functions begin to show micro-progress at the targeted recovery sites. Vagal tone shifts visibly.',
+    middle: 'Larger motor planning gains. Recovery sites respond to the precise input. Family starts to see pre-event capacities returning — sometimes in surprising sequences.',
+    late: 'Compounding gains in the affected systems. Recovery isn\'t always linear, but the trajectory is consistent. Many E families continue with Continuing Care to keep building.'
+  },
+  F: {
+    early: 'Vagal calm protocol typically reduces flare frequency or intensity. Sleep often improves first. Behavioral storms become more predictable — and that predictability is itself a gain.',
+    middle: 'As the infection-clearing protocol takes hold, behaviors start pulling back. OCD-type rituals soften. Tics decrease. Anxiety becomes more manageable.',
+    late: 'Stabilization. Flare response is faster when they happen. Family has tools and confidence. The child\'s "before infection" personality often starts surfacing — usually the most emotional moment of the program.'
+  }
+};
+
+const CHANGE_CAVEAT = `Our goal is to create the conditions for positive neuroplastic change — for your child's brain and nervous system to mold and reorganize toward healthier function. Neuroplasticity is the nervous system's ability to change itself, and it can work for us or against us. If your child has been compensating for a long time, those patterns can take time to overcome before functional changes emerge. What stays consistent across families is the trajectory: <strong>first regulation, then engagement, then function.</strong> Every child's nervous system responds at its own pace.`;
+
+/* ═════════════════════════════════════════════════
+   LABS
+   ═════════════════════════════════════════════════ */
+const LABS = [
+  {
+    tier: 'universal',
+    tierLabel: 'Universal · all paid tiers',
+    name: 'Gut Zoomer (Stool)',
+    sub: '300+ markers · stool sample',
+    checks: 'Bacterial dysbiosis, parasites, yeast overgrowth, inflammatory markers, digestive function, leaky gut indicators.',
+    looking: 'Gut-driven contributors to neurological dysregulation. The gut-brain axis runs both directions; what\'s happening here often shows up in behavior and cognition.'
+  },
+  {
+    tier: 'universal',
+    tierLabel: 'Universal · all paid tiers',
+    name: 'Organic Acids Test (OAT)',
+    sub: '76 markers · urine sample',
+    checks: 'Mitochondrial function, oxalate burden, neurotransmitter precursors, B-vitamin status, fungal metabolites, methylation.',
+    looking: 'Metabolic and nutritional drivers. Where the cellular energy systems are stuck and which supplements are likely to actually move the needle.'
+  },
+  {
+    tier: 'full',
+    tierLabel: 'Full diagnostic · Accelerated + Immersive',
+    name: 'Total Tox Burden',
+    sub: 'Mycotoxins + environmental + heavy metals · urine',
+    checks: 'Mold and mycotoxin exposure, pesticide and chemical burden, heavy metal accumulation.',
+    looking: 'Critical for Profile C (regression) — mold and water-damaged buildings are common silent triggers. Also relevant when biomedical work isn\'t responding as expected.'
+  },
+  {
+    tier: 'full',
+    tierLabel: 'Full diagnostic · Accelerated + Immersive',
+    name: 'Neural Zoomer Plus',
+    sub: 'Bloodborne neuro-immune + infection markers',
+    checks: 'Group A Strep, EBV, HSV, HHV, autoimmune brain markers, blood-brain barrier integrity.',
+    looking: 'The Profile F panel. Identifies the infections and autoimmune patterns that drive PANS/PANDAS presentations. Also flags BBB issues that may compound other profiles.'
+  }
+];
+
+/* ═════════════════════════════════════════════════
+   RIGHT-FIT — honest commitment expectations
+   ═════════════════════════════════════════════════ */
+const RIGHTFIT = {
+  yes: [
+    { profileMin: '20-30 min/day', text: 'A daily commitment of <strong>%MIN%</strong> for 12 weeks. Most parents do it in two blocks (morning + evening) with optional midday.' },
+    { text: 'A primary caregiver who can run the protocol most days. Backup caregivers can help, but one consistent runner does best.' },
+    { text: 'Space at home for the kit and a few minutes of focused time daily.' },
+    { text: 'Willingness to make dietary modifications (especially Profiles B, C, F — Paleo-style anti-inflammatory framework).' },
+    { text: 'Patience. Neuroplastic change is real but rarely overnight — most families see the strongest gains weeks 8-12.' },
+    { text: 'Honesty during the discovery call about what is and isn\'t realistic in your family\'s situation.' }
+  ],
+  no: [
+    { text: 'A medical or clinical background. We teach you what you need.' },
+    { text: 'Tech expertise. The kit is plug-and-play with concierge support.' },
+    { text: 'To live near a clinic. NeuroHome is home-based by design.' },
+    { text: 'To stop your child\'s existing therapies. We coordinate with ABA, speech, OT, and PT.' },
+    { text: 'Perfection. Missing a day or two per week is fine — consistency over volume is the principle.' }
+  ],
+  honesty: 'About one in four families we speak with end up choosing another path — sometimes because the timing isn\'t right, sometimes because the commitment doesn\'t fit, sometimes because their child needs something we don\'t offer. That\'s fine. Our job is to help, not to sell.'
+};
+
+/* Profile-aware daily-minutes string for the right-fit "yes" list */
+function getProfileDailyMin(profile) {
+  return profile.daily.totalMin.replace(/[~\s]/g, '').replace('/day', '') + ' / day';
+}
+
+/* ═════════════════════════════════════════════════
+   FAQ
+   ═════════════════════════════════════════════════ */
+const FAQ = [
+  {
+    q: 'What is the goal of your therapy?',
+    a: '<p>Our goal is to create positive neuroplastic changes in your child\'s nervous system so that their brain and nervous system can properly heal and integrate into their body. Neuroplasticity is the nervous system\'s ability to mold and change itself — this can work for us or against us.</p><p>If your child has been compensating for a long time, there may be patterns that need to be overcome, and this can take longer to create positive functional changes. We don\'t promise outcomes — we create the conditions for change and walk with you through them.</p>'
+  },
+  {
+    q: 'How is this different from ABA, speech therapy, or OT?',
+    a: '<p>ABA, speech, and OT work on behavior and skill. Important work, and we often partner with them. NeuroHome works on the underlying brain physiology that makes those skills possible: brainstem function, reflex integration, hemispheric balance, gut-brain axis, autonomic regulation. Think of it as the foundation, not the replacement.</p><p>Many families do NeuroHome alongside their existing therapies and notice their child gets more out of the others as the foundation strengthens.</p>'
+  },
+  {
+    q: 'Is this safe? Are there side effects?',
+    a: '<p>All devices are FDA-cleared and Class 1 / eye-safe across the kit — no parent certifications required. Supplements are practitioner-grade.</p><p>Some children experience early "recalibration" symptoms in the first 1-2 weeks: temporary sleep changes, mood shifts, mild detox responses (Profile C especially during mold-clearing). The concierge calls in the first week are designed to catch and adjust for these.</p>'
+  },
+  {
+    q: 'What if my child doesn\'t fit one profile cleanly?',
+    a: '<p>Many don\'t, exactly. Profiles are starting points — clinical patterns we\'ve seen across 41 cases — not boxes. Mixed presentations are common; Profile A often overlaps with B or D, Profile F can co-exist with Profile C inflammation patterns.</p><p>Your child\'s actual prescription is personalized after a full intake by a clinician. The quiz at the start of this page is a quick orientation, not a diagnosis.</p>'
+  },
+  {
+    q: 'Does insurance cover this?',
+    a: '<p>NeuroHome is not currently covered by insurance directly. We provide superbills for HSA/FSA reimbursement where applicable, and many families pay using HSA/FSA accounts.</p><p>Some employers offer dependent care or wellness reimbursements that families have successfully used — worth checking with your benefits team.</p>'
+  },
+  {
+    q: 'What ages do you work with?',
+    a: '<p>Most of our cohort is 2-12 years old. We work with children as young as 6 months in specific cases (typically Profile E acquired) and as old as 16 (typically Profile F PANS/PANDAS).</p><p>The principles apply at any age, but earlier intervention typically has more dramatic results because there\'s less compensation pattern to overcome.</p>'
+  },
+  {
+    q: 'What happens if we miss a day?',
+    a: '<p>It happens. The 12-week protocol is designed to tolerate 1-2 missed days per week without losing momentum. If life events disrupt the routine longer than that, the concierge helps recalibrate.</p><p>Consistency over volume is the principle: 80% of the protocol done daily beats 100% done sporadically.</p>'
+  },
+  {
+    q: 'How is progress tracked?',
+    a: '<p>Three ways: ① ATEC scores at baseline, week 6, and week 12 — an objective autism-treatment evaluation tool used widely in research; ② parent-reported daily and weekly observations through the concierge check-ins; ③ clinician video reviews at biweekly check-ins.</p><p>All three triangulate. We tell you what we\'re seeing — and we\'ll tell you if we\'re not seeing what we expected.</p>'
+  },
+  {
+    q: 'How do you decide what to prescribe?',
+    a: '<p>Three sources: ① the cohort data — 41 children we\'ve worked with, classified into the 6 profiles; ② Dr. Kyle\'s clinical assessment of your child\'s specific presentation through video and intake review; ③ lab results that surface biomedical drivers.</p><p>The Profile assignment frames it. The prescription personalizes it. Lab results refine it.</p>'
+  },
+  {
+    q: 'What\'s photobiomodulation (laser/LED) actually doing?',
+    a: '<p>Photobiomodulation (PBM) uses specific wavelengths — typically red and near-infrared — at therapeutic doses to stimulate cellular function. The mitochondria in your child\'s cells absorb these wavelengths and produce more ATP, the energy currency of cellular repair.</p><p>Different placements target different systems: cerebellum for motor and coordination, vagus for autonomic regulation, abdomen for gut-brain axis, face/jaw for cranial nerves. It\'s painless, eye-safe, and increasingly well-supported in the literature.</p>'
+  },
+  {
+    q: 'What if my child resists the protocol?',
+    a: '<p>Common in the first 1-2 weeks. The kit is designed around child-friendly delivery — Hub games look like play, blue glasses paired with music, oils that smell good, beads in the ears.</p><p>Resistance usually drops once the routine is familiar. The concierge has child-engagement strategies if it persists, and the OT can adjust the protocol to work with rather than against your child\'s temperament.</p>'
+  },
+  {
+    q: 'Can I do this alongside our existing therapies?',
+    a: '<p>Yes. Most families do. NeuroHome doesn\'t replace ABA, speech, OT, or PT — it strengthens the underlying foundation those therapies are working on.</p><p>Coordination with existing providers is part of what the concierge does. Many parents report their child gets more out of speech therapy or OT once the foundational work is underway.</p>'
+  },
+  {
+    q: 'What if we want to continue past 12 weeks?',
+    a: '<p>Many families do. We offer Continuing Care plans starting at month 4: maintenance protocols, ongoing supplement supply, and lighter clinical contact (typically 30-60 min per week).</p><p>Most Profile A and D families maintain their gains with the lighter cadence. Profile B, C, E, and F families sometimes continue at higher intensity for 6-12 months depending on labs and trajectory.</p>'
+  },
+  {
+    q: 'What outcomes can I realistically expect?',
+    a: '<p>Honestly: a range. Some children respond fast and dramatically — language returning in weeks, behavior calming, sleep improving. Others respond slowly and steadily — small gains compounding over the 12 weeks. A small number don\'t respond strongly to the protocol; in those cases, we typically catch it around week 4-6 and either adjust or recommend a different path.</p><p>We track outcomes per profile so we can be honest with you during the discovery call about what families with similar presentations have typically experienced.</p>'
+  },
+  {
+    q: 'Do I need to be home every day to run the protocol?',
+    a: '<p>At least one parent or caregiver needs to be present to run the daily blocks. Most blocks are 15-25 minutes; for working families, mornings before work and evenings before bed are the typical windows.</p><p>The Hub session can sometimes be done with another caregiver if you train them. Some families share the load — one parent does mornings, the other evenings.</p>'
+  }
+];
+
+const DISCOVERY = {
+  duration: '30 min',
+  who: 'NeuroHome clinician',
+  cost: 'Free',
+  covers: [
+    'Review your intake responses in detail',
+    'Watch a 1-2 min video of your child if you can share one',
+    'Discuss the recommended profile and tier',
+    'Answer your specific questions honestly',
+    'Help you decide if NeuroHome is right for your family',
+    'Walk you through next steps if it is — or send you elsewhere if it isn\'t'
+  ],
+  promise: '"We\'ll tell you if we\'re not the right fit. About 1 in 4 families we speak with go with another path — that\'s fine. Our job is to help, not to sell."'
+};
+
+/* ═════════════════════════════════════════════════
+   INTAKE QUESTIONS & PROFILE ROUTING
+   ═════════════════════════════════════════════════ */
+const questions = [
+  {
+    label: 'Question 01 of 04',
+    text: 'How old is your <em>child</em>?',
+    options: [
+      { text: 'Under 2 years', value: 'age_lt2' },
+      { text: '2-4 years', value: 'age_2_4' },
+      { text: '4-6 years', value: 'age_4_6' },
+      { text: '6-10 years', value: 'age_6_10' },
+      { text: '10 years and older', value: 'age_10plus' }
+    ]
+  },
+  {
+    label: 'Question 02 of 04',
+    text: 'What concerns you <em>most</em>?',
+    options: [
+      { text: 'Speech and language delays', value: 'concern_speech' },
+      { text: 'Behavior, focus, or emotional regulation', value: 'concern_behavior' },
+      { text: 'Coordination, balance, or motor skills', value: 'concern_motor' },
+      { text: 'Multiple challenges across different areas', value: 'concern_multiple' }
+    ]
+  },
+  {
+    label: 'Question 03 of 04',
+    text: 'When did you first <em>notice</em> changes?',
+    options: [
+      { text: 'From birth — milestones came slowly', value: 'onset_birth' },
+      { text: 'Was developing typically, then regressed (1-2 yrs)', value: 'onset_regression' },
+      { text: 'Sudden change after illness, infection, or stress', value: 'onset_sudden' },
+      { text: 'After a specific medical event (birth complications, injury)', value: 'onset_event' },
+      { text: 'Recently — specific weaknesses standing out', value: 'onset_recent' }
+    ]
+  },
+  {
+    label: 'Question 04 of 04',
+    text: 'How <em>significant</em> are the challenges day-to-day?',
+    options: [
+      { text: 'Mild — meets some milestones, specific gaps', value: 'sev_mild' },
+      { text: 'Moderate — significant delays, multiple areas affected', value: 'sev_moderate' },
+      { text: 'Severe — multiple systems, daily life heavily affected', value: 'sev_severe' }
+    ]
+  }
+];
+
+function assignProfile(answers) {
+  // Onset is the strongest signal
+  if (answers.includes('onset_regression')) return 'C';
+  if (answers.includes('onset_sudden')) return 'F';
+  if (answers.includes('onset_event')) return 'E';
+  if (answers.includes('onset_recent') || answers.includes('sev_mild')) return 'D';
+  if (answers.includes('sev_severe') || answers.includes('concern_multiple')) return 'B';
+  return 'A';
+}
+
+/* Pill labels for the recap on the reveal screen */
+const ANSWER_PILL_LABELS = {
+  age_lt2: 'Under 2',
+  age_2_4: '2-4 years',
+  age_4_6: '4-6 years',
+  age_6_10: '6-10 years',
+  age_10plus: '10+ years',
+  concern_speech: 'Speech / language',
+  concern_behavior: 'Behavior / regulation',
+  concern_motor: 'Motor / coordination',
+  concern_multiple: 'Multiple areas',
+  onset_birth: 'From birth',
+  onset_regression: 'Regression around 18-24 mo',
+  onset_sudden: 'Sudden post-illness',
+  onset_event: 'After medical event',
+  onset_recent: 'Recently noticed',
+  sev_mild: 'Mild',
+  sev_moderate: 'Moderate',
+  sev_severe: 'Severe'
+};
+
+/* Phrasing maps used by the personalized synthesis */
+const AGE_PHRASES = {
+  age_lt2: 'a child under 2',
+  age_2_4: 'a 2-4 year old',
+  age_4_6: 'a 4-6 year old',
+  age_6_10: 'a 6-10 year old',
+  age_10plus: 'a child 10 or older'
+};
+const CONCERN_PHRASES = {
+  concern_speech: 'speech and language coming slowly',
+  concern_behavior: 'behavior and emotional regulation as the front-line concern',
+  concern_motor: 'coordination and motor challenges as the loudest signal',
+  concern_multiple: 'challenges showing up across multiple areas'
+};
+const ONSET_PHRASES = {
+  onset_birth: 'with delays present from birth',
+  onset_regression: 'who was developing typically and then regressed around 18-24 months',
+  onset_sudden: 'whose presentation shifted suddenly after illness or infection',
+  onset_event: 'following a specific medical event',
+  onset_recent: 'with specific weaknesses standing out recently'
+};
+
+/* Per-profile synthesis — uses the parent's answers to explain WHY this profile fits */
+function buildPersonalizedReveal(profileKey, answers) {
+  const ageKey = answers.find(a => a.startsWith('age_')) || 'age_4_6';
+  const concernKey = answers.find(a => a.startsWith('concern_')) || 'concern_speech';
+  const onsetKey = answers.find(a => a.startsWith('onset_')) || 'onset_birth';
+  const sevKey = answers.find(a => a.startsWith('sev_')) || 'sev_moderate';
+
+  const age = AGE_PHRASES[ageKey];
+  const concern = CONCERN_PHRASES[concernKey];
+  const onset = ONSET_PHRASES[onsetKey];
+
+  const sevHedge = {
+    sev_mild: 'mild day-to-day impact',
+    sev_moderate: 'significant day-to-day impact',
+    sev_severe: 'severe impact across multiple systems'
+  }[sevKey];
+
+  const synthesis = {
+    A: `For <em>${age}</em> with ${concern} ${onset}, Profile A is the most common pattern we see. The brain is wired and ready to build — it just needs the right stimulation, in the right order, daily.`,
+    B: `For <em>${age}</em> with ${concern} ${onset} and ${sevHedge}, Profile B fits best. Multiple systems are pulling on each other, which is why a single therapy hasn't moved the needle. The plan we'd build is layered, with someone walking you through it every weekday.`,
+    C: `For <em>${age}</em> with ${concern} ${onset}, Profile C is the strongest fit. Something flipped the immune system into chronic inflammation, and the developing brain caught the brunt of it. The neurological work matters — but the bigger lever here is biomedical.`,
+    D: `For <em>${age}</em> with ${concern} ${onset}, Profile D is what we typically see. Most of the hardware is in place. We're tuning, not rebuilding — and tuning works fast when the foundation is solid.`,
+    E: `For <em>${age}</em> with ${concern} ${onset}, Profile E is the most likely fit. Specific neural networks took a hit, and they need targeted input — precisely placed, consistently delivered. The brain doesn't stop healing; our job is to feed it the right signal.`,
+    F: `For <em>${age}</em> with ${concern} ${onset}, Profile F is the strongest fit. This is treatable. The lever is anti-inflammatory and infection-clearing — and behaviors usually start pulling back once the autoimmune storm calms.`
+  };
+
+  return synthesis[profileKey];
+}
+
+/* ═════════════════════════════════════════════════
+   STATE & NAVIGATION
+   ═════════════════════════════════════════════════ */
+let currentQuestion = 0;
+let answers = [];
+let selectedProfile = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen, #welcome, #intake, #picker, #reveal, #results').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('restartBtn').style.display = (id === 'welcome') ? 'none' : 'block';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function goToIntake() {
+  currentQuestion = 0;
+  answers = [];
+  showScreen('intake');
+  renderQuestion();
+}
+
+function goToPicker() {
+  showScreen('picker');
+  renderPicker();
+}
+
+function goBack() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    answers.pop();
+    renderQuestion();
+  } else {
+    showScreen('welcome');
+  }
+}
+
+function answerQuestion(value) {
+  answers.push(value);
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  } else {
+    selectedProfile = assignProfile(answers);
+    showReveal(selectedProfile);
+  }
+}
+
+function showReveal(profileKey) {
+  selectedProfile = profileKey;
+  const p = profiles[profileKey];
+  document.documentElement.style.setProperty('--p-color', p.color);
+  document.documentElement.style.setProperty('--p-soft', p.softColor);
+  document.getElementById('revealLetter').textContent = p.letter;
+  document.getElementById('revealName').textContent = `Profile ${p.letter} · ${p.name}`;
+  document.getElementById('revealTagline').textContent = p.tagline;
+
+  // Build recap pills from the parent's answers
+  const recapEl = document.getElementById('revealRecap');
+  const recapLabelEl = document.getElementById('revealRecapLabel');
+  if (answers.length > 0) {
+    let pillsHTML = '';
+    answers.forEach(ans => {
+      const label = ANSWER_PILL_LABELS[ans];
+      if (label) pillsHTML += `<span class="reveal-recap-pill">${label}</span>`;
+    });
+    recapEl.innerHTML = pillsHTML;
+    recapEl.style.display = 'flex';
+    recapLabelEl.style.display = 'block';
+  } else {
+    recapEl.style.display = 'none';
+    recapLabelEl.style.display = 'none';
+  }
+
+  // Personalized synthesis paragraph
+  document.getElementById('revealPersonalized').innerHTML = buildPersonalizedReveal(profileKey, answers);
+
+  showScreen('reveal');
+}
+
+function goToResults() {
+  renderResults(selectedProfile);
+  showScreen('results');
+}
+
+function selectProfileFromPicker(profileKey) {
+  selectedProfile = profileKey;
+  const p = profiles[profileKey];
+  document.documentElement.style.setProperty('--p-color', p.color);
+  document.documentElement.style.setProperty('--p-soft', p.softColor);
+  renderResults(profileKey);
+  showScreen('results');
+}
+
+function switchProfile(profileKey) {
+  selectedProfile = profileKey;
+  const p = profiles[profileKey];
+  document.documentElement.style.setProperty('--p-color', p.color);
+  document.documentElement.style.setProperty('--p-soft', p.softColor);
+  renderResults(profileKey);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  showScreen('welcome');
+}
+
+/* ═════════════════════════════════════════════════
+   RENDERING
+   ═════════════════════════════════════════════════ */
+function renderQuestion() {
+  // Progress dots
+  const progressEl = document.getElementById('progress');
+  let progressHTML = '';
+  for (let i = 0; i < questions.length; i++) {
+    let cls = 'progress-dot';
+    if (i < currentQuestion) cls += ' complete';
+    if (i === currentQuestion) cls += ' current';
+    progressHTML += `<span class="${cls}"></span>`;
+  }
+  progressHTML += `<span class="progress-step">Step ${currentQuestion + 1} of ${questions.length}</span>`;
+  progressEl.innerHTML = progressHTML;
+
+  // Question
+  const q = questions[currentQuestion];
+  const qEl = document.getElementById('question');
+  qEl.style.animation = 'none';
+  qEl.offsetHeight; // trigger reflow
+  qEl.style.animation = '';
+
+  let optionsHTML = '<div class="intake-options">';
+  q.options.forEach(opt => {
+    optionsHTML += `<button class="intake-option" onclick="answerQuestion('${opt.value}')"><span>${opt.text}</span><span class="intake-option-arrow">→</span></button>`;
+  });
+  optionsHTML += '</div>';
+
+  qEl.innerHTML = `
+    <div class="intake-q-label">${q.label}</div>
+    <h2 class="intake-q-text">${q.text}</h2>
+    ${optionsHTML}
+  `;
+  document.getElementById('backBtn').style.display = 'inline-block';
+}
+
+function renderPicker() {
+  const grid = document.getElementById('pickerGrid');
+  let html = '';
+  Object.keys(profiles).forEach(key => {
+    const p = profiles[key];
+    html += `
+      <div class="picker-card" style="--card-color: ${p.color}" onclick="selectProfileFromPicker('${key}')">
+        <div class="picker-card-letter">${p.letter}</div>
+        <div class="picker-card-name">Profile ${p.letter} · ${p.name}</div>
+        <div class="picker-card-tagline">${p.tagline}</div>
+        <div class="picker-card-desc">${p.short}</div>
+      </div>
+    `;
+  });
+  grid.innerHTML = html;
+}
+
+function renderResults(profileKey) {
+  const p = profiles[profileKey];
+  const tier = TIERS[p.tier];
+
+  // Switcher pills
+  let pillsHTML = '';
+  Object.keys(profiles).forEach(key => {
+    const pp = profiles[key];
+    const active = (key === profileKey) ? ' active' : '';
+    pillsHTML += `<button class="switcher-pill${active}" style="--pill-color: ${pp.color}" onclick="switchProfile('${key}')">
+      <span class="switcher-pill-letter">${pp.letter}</span>
+      <span>${pp.name}</span>
+    </button>`;
+  });
+  document.getElementById('switcherPills').innerHTML = pillsHTML;
+
+  // Results sections
+  const presentationRows = Object.entries(p.presentation).map(([k, v]) =>
+    `<div class="poc-row"><span class="poc-label">${k}</span><span class="poc-val">${v}</span></div>`
+  ).join('');
+
+  const approachCards = p.approach.map((a, i) => `
+    <div class="approach-card">
+      <div class="approach-card-num">0${i + 1}</div>
+      <div class="approach-card-title">${a.title}</div>
+      <div class="approach-card-desc">${a.desc}</div>
+    </div>
+  `).join('');
+
+  const tierStats = tier.stats.map(s => `
+    <div>
+      <div class="tier-rec-stat-num">${s.num}</div>
+      <div class="tier-rec-stat-label">${s.label}</div>
+    </div>
+  `).join('');
+
+  const tierIncludes = tier.includes.map(i => `<div class="tier-rec-includes-item">${i}</div>`).join('');
+
+  const kitDevices = FOUNDATIONAL_KIT.map(k => `
+    <div class="kit-item">
+      <div class="kit-item-cat">${k.cat}</div>
+      <div class="kit-item-name">${k.name}</div>
+      <div class="kit-item-purpose">${k.purpose}</div>
+    </div>
+  `).join('');
+
+  const kitSupplements = SUPPLEMENTS.map(s => `
+    <div class="kit-item">
+      <div class="kit-item-cat">${s.cat}</div>
+      <div class="kit-item-name">${s.name}</div>
+      <div class="kit-item-purpose">${s.purpose}</div>
+    </div>
+  `).join('');
+
+  let addOnsHTML = '';
+  if (p.addOns && p.addOns.length > 0) {
+    const addOnCards = p.addOns.map(a => `
+      <div class="kit-item addon">
+        <div class="kit-item-cat">Profile ${p.letter} add-on</div>
+        <div class="kit-item-name">${a.name}</div>
+        <div class="kit-item-purpose">${a.purpose}</div>
+      </div>
+    `).join('');
+    addOnsHTML = `
+      <div class="kit-section-label">Profile ${p.letter} add-ons</div>
+      <div class="kit-grid">${addOnCards}</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:14px;line-height:1.6">${p.addOnsNote}</p>
+    `;
+  } else {
+    addOnsHTML = `<p style="font-size:14px;color:var(--text-secondary);margin-top:24px;padding:18px;background:var(--bg-elevated);border-radius:10px;line-height:1.6">${p.addOnsNote}</p>`;
+  }
+
+  const phasesHTML = PHASES.map(ph => `
+    <div class="plan-phase">
+      <div class="plan-phase-tag">${ph.tag}</div>
+      <div class="plan-phase-title">${ph.title}</div>
+      <div class="plan-phase-weeks">${ph.weeks}</div>
+      <div class="plan-phase-desc">${ph.desc}</div>
+    </div>
+  `).join('');
+
+  const morningBlock = p.daily.morning;
+  const middayBlock = p.daily.midday;
+  const eveningBlock = p.daily.evening;
+
+  const renderBlock = (tag, block) => `
+    <div class="plan-block">
+      <div class="plan-block-tag">${tag}</div>
+      <div class="plan-block-headline">
+        <div class="plan-block-when">${block.when}</div>
+        <div class="plan-block-duration">${block.duration}</div>
+      </div>
+      <ul class="plan-block-list">
+        ${block.items.map(i => `<li>${i}</li>`).join('')}
+      </ul>
+      <div class="plan-block-note"><strong>What to expect</strong>${block.expects}</div>
+    </div>
+  `;
+
+  const flareNote = p.daily.flare ? `
+    <div style="margin-top:24px;padding:20px;background:var(--p-soft);border-left:3px solid var(--p-color);border-radius:8px;font-size:14px;line-height:1.65">
+      <strong style="color:var(--p-color);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Flare-day rescue protocol</strong>
+      <p style="margin-top:8px;color:var(--text-secondary)">${p.daily.flare}</p>
+    </div>
+  ` : '';
+
+  const progressionNote = p.daily.progression ? `
+    <div class="plan-day-progression">
+      <strong>How this changes over 12 weeks</strong>
+      ${p.daily.progression}
+    </div>
+  ` : '';
+
+  /* New section helpers */
+
+  const teamCards = TEAM.map(t => `
+    <div class="team-card">
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="team-avatar">${t.initials}</div>
+        <div>
+          <div class="team-name">${t.name}</div>
+          <div class="team-title">${t.title}</div>
+        </div>
+      </div>
+      <div class="team-bio">${t.bio}</div>
+    </div>
+  `).join('');
+
+  const profileStories = getStoriesForProfile(p.letter);
+  const storyCards = renderStoryCards(profileStories);
+
+  const cp = CHANGE_PATTERNS[p.letter];
+  const changePhases = `
+    <div class="change-phase">
+      <span class="change-phase-tag">Weeks 1-4 · regulation</span>
+      <div class="change-phase-title">First settling</div>
+      <div class="change-phase-body">${cp.early}</div>
+    </div>
+    <div class="change-phase">
+      <span class="change-phase-tag">Weeks 4-8 · engagement</span>
+      <div class="change-phase-title">Active rebuild</div>
+      <div class="change-phase-body">${cp.middle}</div>
+    </div>
+    <div class="change-phase">
+      <span class="change-phase-tag">Weeks 8-12 · function</span>
+      <div class="change-phase-title">Compounding gains</div>
+      <div class="change-phase-body">${cp.late}</div>
+    </div>
+  `;
+
+  const labsCards = LABS.map(l => `
+    <div class="lab-card ${l.tier}">
+      <div class="lab-tier-tag">${l.tierLabel}</div>
+      <div>
+        <div class="lab-name">${l.name}</div>
+        <div class="lab-sub">${l.sub}</div>
+      </div>
+      <div class="lab-row">
+        <div class="lab-row-label">What it tests</div>
+        <div class="lab-row-content">${l.checks}</div>
+      </div>
+      <div class="lab-row">
+        <div class="lab-row-label">What we look for</div>
+        <div class="lab-row-content">${l.looking}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const fitYesItems = RIGHTFIT.yes.map(item => {
+    const text = item.profileMin ? item.text.replace('%MIN%', getProfileDailyMin(p)) : item.text;
+    return `<li>${text}</li>`;
+  }).join('');
+  const fitNoItems = RIGHTFIT.no.map(item => `<li>${item.text}</li>`).join('');
+
+  const faqItems = FAQ.map(f => `
+    <details class="faq-item">
+      <summary class="faq-summary"><span>${f.q}</span><span class="faq-icon">+</span></summary>
+      <div class="faq-body">${f.a}</div>
+    </details>
+  `).join('');
+
+  const discoveryCovers = DISCOVERY.covers.map(c => `<div class="discovery-covers-item">${c}</div>`).join('');
+
+  document.getElementById('resultsContent').innerHTML = `
+
+    <!-- 1. Profile overview -->
+    <div class="section">
+      <div class="section-tag">Your child's profile</div>
+      <h2 class="section-title">Profile ${p.letter} · <em>${p.name}</em></h2>
+      <p class="section-lead">${p.tagline}</p>
+      <div class="profile-overview">
+        <div class="profile-overview-text">
+          <div class="profile-overview-tag">What this means</div>
+          <div class="profile-overview-tagline">${p.short}</div>
+          <div class="profile-overview-body">
+            ${p.description.map(para => `<p>${para}</p>`).join('')}
+          </div>
+        </div>
+        <div class="profile-overview-card">
+          ${presentationRows}
+          <div class="poc-row" style="border-top:2px solid var(--p-color);margin-top:8px;padding-top:14px"><span class="poc-label">Intensity</span><span class="poc-val" style="color:var(--p-color);font-weight:600">${p.intensity}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Team & cohort credibility -->
+    <div class="section">
+      <div class="section-tag">Who you'll be working with</div>
+      <h2 class="section-title">Built on <em>real cases</em>, not theory.</h2>
+      <p class="section-lead">The profile system, the kit, and the 12-week protocol are pulled from clinical work with 41 children — across the autism spectrum, regression cases, acquired injuries, and PANS/PANDAS. Your child won't be the experiment.</p>
+      <div class="team-strip">
+        <div class="team-grid">${teamCards}</div>
+        <div class="cohort-card">
+          <div class="cohort-stat">
+            <div class="cohort-stat-num">${COHORT_STAT.num}</div>
+            <div class="cohort-stat-label">${COHORT_STAT.label}</div>
+          </div>
+          <div class="cohort-detail">${COHORT_STAT.detail}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Treatment approach -->
+    <div class="section">
+      <div class="section-tag">Our treatment approach</div>
+      <h2 class="section-title">How we'll <em>work with</em> your child</h2>
+      <p class="section-lead">For Profile ${p.letter}, the plan emphasizes these four pillars across the 12 weeks. The ratios shift over time — heavier early, lighter later — but these are the throughlines.</p>
+      <div class="approach-grid">${approachCards}</div>
+    </div>
+
+    <!-- 4. Tier recommendation -->
+    <div class="section">
+      <div class="section-tag">Recommended package</div>
+      <h2 class="section-title">The <em>${tier.name}</em> plan</h2>
+      <p class="section-lead">Based on Profile ${p.letter}'s typical clinical needs and the cohort data we've gathered from 41 cases, this is the package we'd recommend as the starting point.</p>
+      <div class="tier-rec">
+        <div class="tier-rec-badge">${tier.badge}</div>
+        <h3 class="tier-rec-name">${tier.name} · <em>${tier.price}</em></h3>
+        <div class="tier-rec-philo">${tier.philosophy}</div>
+        <div class="tier-rec-stats">${tierStats}</div>
+        <div class="tier-rec-includes">${tierIncludes}</div>
+      </div>
+    </div>
+
+    <!-- 5. Kit -->
+    <div class="section">
+      <div class="section-tag">What you'll receive</div>
+      <h2 class="section-title">Your <em>NeuroHome kit</em></h2>
+      <p class="section-lead">Every family in the program receives the same foundational kit and 3-month supplement supply. ${p.addOns.length > 0 ? `For Profile ${p.letter}, we'll also prescribe specific add-ons after the intake assessment.` : `Profile ${p.letter} doesn't typically require additional add-ons — the foundational kit covers it.`}</p>
+
+      <div class="kit-section-label">Foundational devices · 7 items</div>
+      <div class="kit-grid">${kitDevices}</div>
+
+      <div class="kit-section-label">3-month supplement supply</div>
+      <div class="kit-grid">${kitSupplements}</div>
+
+      ${addOnsHTML}
+    </div>
+
+    <!-- 6. Labs -->
+    <div class="section">
+      <div class="section-tag">Diagnostics</div>
+      <h2 class="section-title">The <em>labs</em> we order</h2>
+      <p class="section-lead">${p.tier === 'foundation' ? 'Foundation tier includes universal labs (Stool + OAT) — the panels every child gets to surface gut and metabolic drivers from day one.' : 'Your tier includes the full diagnostic panel — universal labs plus Total Tox Burden and Neural Zoomer Plus, covering all six biomedical categories.'} Lab results return between weeks 4-6 and drive the biomedical layer of the protocol.</p>
+      <div class="labs-grid">${labsCards}</div>
+    </div>
+
+    <!-- 7. 12-week plan -->
+    <div class="section">
+      <div class="section-tag">Your 12-week plan</div>
+      <h2 class="section-title">What 12 <em>weeks</em> looks like</h2>
+      <p class="section-lead">${p.schedule.active} ${p.schedule.sample}</p>
+
+      <div class="plan-phases">${phasesHTML}</div>
+
+      <div class="plan-day">
+        <div class="plan-day-header">
+          <div>
+            <div class="plan-day-title">A typical day in the active phase</div>
+            <div class="plan-day-sub">Sample · Profile ${p.letter} · ${p.intensity} intensity</div>
+          </div>
+          <div class="plan-day-totals">
+            <div class="plan-day-totals-cell">
+              <div class="plan-day-totals-num">${p.daily.totalMin}</div>
+              <div class="plan-day-totals-label">Total daily commitment</div>
+            </div>
+          </div>
+        </div>
+        <div class="plan-day-blocks">
+          ${renderBlock('Morning block', morningBlock)}
+          ${renderBlock('Midday block', middayBlock)}
+          ${renderBlock('Evening block', eveningBlock)}
+        </div>
+        ${flareNote}
+        ${progressionNote}
+      </div>
+    </div>
+
+    <!-- 8. What change looks like -->
+    <div class="section">
+      <div class="section-tag">What change looks like</div>
+      <h2 class="section-title">Trajectory: <em>regulation, engagement, function.</em></h2>
+      <p class="section-lead">For Profile ${p.letter}, here's what families typically observe as neuroplastic change unfolds. Not a checklist — a pattern. The order matters more than the timing.</p>
+      <div class="change-grid">${changePhases}</div>
+      <div class="change-caveat">
+        <strong>How we think about outcomes</strong>
+        ${CHANGE_CAVEAT}
+      </div>
+    </div>
+
+    <!-- 9. Patient stories -->
+    <div class="section">
+      <div class="section-tag">Families like yours</div>
+      <h2 class="section-title">Three Profile ${p.letter} <em>journeys</em>.</h2>
+      <p class="section-lead">Different ages, different starting points — all children whose presentations matched the pattern we'd see in your child. Names changed, details composited from cohort cases.</p>
+      <div class="stories-grid">${storyCards}</div>
+    </div>
+
+    <!-- 10. Is this right for your family? -->
+    <div class="section">
+      <div class="section-tag">Honest commitment check</div>
+      <h2 class="section-title">Is this <em>right</em> for your family?</h2>
+      <p class="section-lead">A 12-week home program asks something specific of you. Here's what it actually requires — and what it doesn't.</p>
+      <div class="fit-grid">
+        <div class="fit-col yes">
+          <div class="fit-col-title">You'll need</div>
+          <ul class="fit-list">${fitYesItems}</ul>
+        </div>
+        <div class="fit-col no">
+          <div class="fit-col-title">You won't need</div>
+          <ul class="fit-list">${fitNoItems}</ul>
+        </div>
+      </div>
+      <div class="fit-honesty">
+        <div class="fit-honesty-content">
+          <div class="fit-honesty-mark">A note from the team</div>
+          ${RIGHTFIT.honesty}
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. FAQ -->
+    <div class="section">
+      <div class="section-tag">Frequently asked</div>
+      <h2 class="section-title">Questions <em>we hear</em>.</h2>
+      <p class="section-lead">The questions every parent asks before committing — answered honestly. If yours isn't here, ask it on the discovery call.</p>
+      <div class="faq-list">${faqItems}</div>
+    </div>
+
+    <!-- 12. Discovery call (upgraded) -->
+    <div class="section" style="border-bottom:none">
+      <div class="discovery-card">
+        <div class="discovery-content">
+          <div class="discovery-mark">The next step</div>
+          <h3 class="discovery-title">Let's <em>talk through</em> your child's plan together.</h3>
+          <p class="discovery-sub">A no-pressure conversation with a NeuroHome clinician. We'll review what you've seen here, look at your child's specific situation, and help you decide whether to move forward — or whether something else would serve you better.</p>
+
+          <div class="discovery-meta">
+            <div>
+              <div class="discovery-meta-num">${DISCOVERY.duration}</div>
+              <div class="discovery-meta-label">Conversation length</div>
+            </div>
+            <div>
+              <div class="discovery-meta-num">${DISCOVERY.cost}</div>
+              <div class="discovery-meta-label">Cost</div>
+            </div>
+            <div>
+              <div class="discovery-meta-num">${DISCOVERY.who}</div>
+              <div class="discovery-meta-label">Who you'll talk to</div>
+            </div>
+          </div>
+
+          <div class="discovery-covers">${discoveryCovers}</div>
+
+          <button class="discovery-button">Book a discovery call <span class="discovery-button-arrow">→</span></button>
+
+          <div class="discovery-promise">${DISCOVERY.promise}</div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>About this page.</strong> Profile assignment shown here is illustrative — in the actual program, your child's profile is confirmed by a clinician through intake forms, video review, and clinical case discussion, not a 4-question quiz. Tier recommendations are starting points; the final plan is personalized to your child after the discovery call. Patient stories on this page are composited from cohort patterns with names changed; the trajectories are representative.
+      </div>
+    </div>
+
+  `;
+}
+
+/* ═════════════════════════════════════════════════
+   INITIAL RENDER
+   ═════════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('topnav');
+  if (window.scrollY > 8) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+// Set default profile color on load (will be overridden when a profile is selected)
+document.documentElement.style.setProperty('--p-color', 'var(--accent)');
+document.documentElement.style.setProperty('--p-soft', 'var(--accent-soft)');
+
+// Populate welcome-page stories
+document.getElementById('welcomeStoriesGrid').innerHTML = renderStoryCards(getWelcomeStories());
+
+</script>
+</body>
+</html>

@@ -24,14 +24,15 @@
   --accent-soft: #cffafe;
   --gold: #d97706;
   --gold-soft: #fef3c7;
-  /* Profile palette */
-  --prof-a: #16a34a;  --prof-a-soft: #dcfce7;
-  --prof-b: #9333ea;  --prof-b-soft: #f3e8ff;
-  --prof-c: #d97706;  --prof-c-soft: #fef3c7;
-  --prof-d: #2563eb;  --prof-d-soft: #dbeafe;
-  --prof-e: #ea580c;  --prof-e-soft: #ffedd5;
-  --prof-f: #be123c;  --prof-f-soft: #ffe4e6;
-  /* Active profile accent (set dynamically) */
+  /* Bucket palette — one ramp per clinical bucket */
+  --bk-foundational:           #16a34a;  --bk-foundational-soft:           #dcfce7;
+  --bk-sensory-motor:          #2563eb;  --bk-sensory-motor-soft:          #dbeafe;
+  --bk-birth-structural:       #ea580c;  --bk-birth-structural-soft:       #ffedd5;
+  --bk-environmental:          #d97706;  --bk-environmental-soft:          #fef3c7;
+  --bk-hyperimmune:            #be123c;  --bk-hyperimmune-soft:            #ffe4e6;
+  --bk-acquired-regression:    #9333ea;  --bk-acquired-regression-soft:    #f3e8ff;
+  --bk-md-intake:              #475569;  --bk-md-intake-soft:              #f1f5f9;
+  /* Active bucket accent (set dynamically) */
   --p-color: var(--accent);
   --p-soft: var(--accent-soft);
 }
@@ -503,6 +504,21 @@ body {
 .reveal-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18); }
 .reveal-cta-arrow { transition: transform 0.25s ease; }
 .reveal-cta:hover .reveal-cta-arrow { transform: translateX(4px); }
+
+/* MD-intake screen — neutral palette, same layout shape as reveal */
+#mdIntake {
+  display: none;
+  min-height: 100vh;
+  align-items: center; justify-content: center;
+  padding: 100px 40px 60px;
+  position: relative; overflow: hidden;
+}
+#mdIntake.active { display: flex; }
+#mdIntake::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 700px 500px at 50% 40%, var(--bk-md-intake-soft) 0%, transparent 60%);
+  opacity: 0.7; pointer-events: none;
+}
 
 /* Reveal — personalized recap & synthesis */
 .reveal-recap {
@@ -1581,7 +1597,7 @@ body {
 <!-- ═════════════════════════════════════════════════ TOP NAV ═════════════════════════════════════════════════ -->
 <nav class="topnav" id="topnav">
   <div class="topnav-brand">Neuro<span>Home</span></div>
-  <div class="topnav-meta">Family Discovery · v0.7</div>
+  <div class="topnav-meta">Family Discovery · v1.0 · unified buckets</div>
   <button class="topnav-restart" onclick="restart()" id="restartBtn" style="display:none">Start Over</button>
 </nav>
 
@@ -1597,7 +1613,7 @@ body {
       Find your child's path
       <span class="welcome-cta-arrow">→</span>
     </button>
-    <button class="welcome-skip" onclick="goToPicker()">Skip — show me all the profiles</button>
+    <button class="welcome-skip" onclick="goToPicker()">Skip — show me all the patterns</button>
   </div>
 
   <!-- Stories — proof below the CTA for parents who want to scroll -->
@@ -1605,7 +1621,7 @@ body {
     <div class="welcome-stories-header">
       <div class="welcome-stories-mark">Families we've worked with</div>
       <h2 class="welcome-stories-title">Real children. <em>Real change.</em></h2>
-      <p class="welcome-stories-sub">Different ages, different profiles, different starting points — and trajectories that consistently moved in the same direction.</p>
+      <p class="welcome-stories-sub">Different ages, different patterns, different starting points — and trajectories that consistently moved in the same direction.</p>
     </div>
     <div class="stories-grid" id="welcomeStoriesGrid"></div>
     <p class="welcome-stories-disclaimer">Composite stories from our clinical cohort · names changed</p>
@@ -1626,9 +1642,9 @@ body {
 <section id="picker">
   <div class="picker-inner">
     <div class="picker-header">
-      <div class="picker-mark">All six profiles</div>
+      <div class="picker-mark">Six clinical patterns</div>
       <h1 class="picker-title">Which best <em>describes</em> your child?</h1>
-      <p class="picker-sub">Pick the profile that sounds most familiar. You can switch between them at any time once you're inside.</p>
+      <p class="picker-sub">Pick the pattern that sounds most familiar. You can switch between them at any time once you're inside.</p>
     </div>
     <div class="picker-grid" id="pickerGrid"></div>
   </div>
@@ -1638,14 +1654,27 @@ body {
 <section id="reveal">
   <div class="reveal-inner">
     <div class="reveal-mark">Based on what you shared</div>
-    <div class="reveal-letter" id="revealLetter">A</div>
-    <div class="reveal-name" id="revealName">Profile A</div>
+    <div class="reveal-letter" id="revealSeverity">2</div>
+    <div class="reveal-name" id="revealName">Foundational Pattern</div>
     <div class="reveal-tagline" id="revealTagline"></div>
     <div class="reveal-recap-label" id="revealRecapLabel" style="display:none">What you told us</div>
     <div class="reveal-recap" id="revealRecap" style="display:none"></div>
     <div class="reveal-personalized" id="revealPersonalized"></div>
     <button class="reveal-cta" onclick="goToResults()">
       See your child's plan
+      <span class="reveal-cta-arrow">→</span>
+    </button>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════ MD-INTAKE ROUTE ═════════════════════════════════════════════════ -->
+<section id="mdIntake">
+  <div class="reveal-inner">
+    <div class="reveal-mark" id="mdIntakeEyebrow">Direct intake recommended</div>
+    <h1 class="reveal-tagline" id="mdIntakeTitle" style="font-size:clamp(36px,5vw,56px);margin-bottom:32px;color:var(--text-primary)">Let's talk before we sketch a plan.</h1>
+    <div class="reveal-personalized" id="mdIntakeBody"></div>
+    <button class="reveal-cta" onclick="window.location.href='#discovery'">
+      <span id="mdIntakeCta">Book a Discovery Call</span>
       <span class="reveal-cta-arrow">→</span>
     </button>
   </div>
@@ -1666,15 +1695,26 @@ body {
 
 <script>
 /* ═════════════════════════════════════════════════
-   PROFILE DATA
+   BUCKET DATA — unified clinical taxonomy
    ═════════════════════════════════════════════════ */
-const profiles = {
-  A: {
-    letter: 'A',
-    name: 'Pure Neurodevelopmental',
-    color: 'var(--prof-a)',
-    softColor: 'var(--prof-a-soft)',
-    tagline: 'Building blocks not quite in place — but no clear trigger event.',
+/* ═════════════════════════════════════════════════
+   BUCKET DATA — unified clinical taxonomy
+   V1 scope: 7 buckets (Metabolic deferred, Severe Dysreg routed
+   to MD intake). Each bucket carries clinical metadata,
+   parent-facing copy, and the full daily protocol scaffold
+   carried over from the previous A-F system.
+   ═════════════════════════════════════════════════ */
+const buckets = {
+  foundational: {
+    key: 'foundational',
+    bucket: 1,
+    severity: '2',
+    severityLabel: '2/10',
+    clinical: 'Foundational Developmental Delay',
+    name: 'Foundational Pattern',
+    color: 'var(--bk-foundational)',
+    softColor: 'var(--bk-foundational-soft)',
+    tagline: 'Building blocks slow to come in — no clear trigger event.',
     short: 'Classic developmental delay presentation. The brain is building, just slowly and unevenly.',
     description: [
       "Your child likely shows delays in speech, social engagement, or motor milestones — but there isn't an obvious medical event you can point to. No sudden regression. No mold exposure. No infection that flipped a switch.",
@@ -1691,7 +1731,7 @@ const profiles = {
       { title: 'Photobiomodulation', desc: 'Targeted light therapy to cerebellum and brainstem to wake up under-firing networks.' }
     ],
     addOns: [],
-    addOnsNote: 'No specialty add-ons typically needed — the foundational kit is sufficient for most Profile A children.',
+    addOnsNote: 'No specialty add-ons typically needed — the foundational kit is sufficient for most Foundational Pattern children.',
     schedule: {
       active: 'Twice-weekly OT/PT plus concierge check-ins. ~5 sessions per active week.',
       sample: '30-45 min daily protocol — split AM and PM.'
@@ -1733,171 +1773,26 @@ const profiles = {
           'Bottom-of-feet laser before bed (1 min — parasympathetic prep)',
           'Brainwave Theta near right ear if struggling to settle (3 min)'
         ],
-        expects: 'The evening block is where the real building happens. Reflex work feels boring and repetitive — that\'s the point. Same exercise, daily, until it integrates. Most A children show first reflex resolution around week 5-6.'
+        expects: 'The evening block is where the real building happens. Reflex work feels boring and repetitive — that\'s the point. Same exercise, daily, until it integrates. Most Foundational children show first reflex resolution around week 5-6.'
       },
       progression: 'Boot camp weeks 1-2 are lighter while you learn the kit. Weeks 3-9 lock the full daily routine in. Weeks 10-12 step down — by graduation the family is running this in 30 minutes, on autopilot.'
     }
   },
-  B: {
-    letter: 'B',
-    name: 'Complex Multi-pathway',
-    color: 'var(--prof-b)',
-    softColor: 'var(--prof-b-soft)',
-    tagline: 'Multiple systems dysregulated together — every layer needs work.',
-    short: 'Severe presentation where neurological, biomedical, and immune layers are all firing at once.',
-    description: [
-      "Your child has heavy primitive reflex burden, multiple developmental areas affected, and likely biomedical issues that compound the picture — gut symptoms, sleep dysregulation, food sensitivities, behavioral storms.",
-      "This isn't a single broken pathway. It's several systems pulling on each other. The reflexes are noisy because the brainstem is dysregulated. The brainstem is dysregulated because gut inflammation is loud. The gut is loud because the vagus nerve isn't doing its job. Pull one thread and others tug back.",
-      "These are the kids who need the fullest version of the program. Not because they're harder to reach — because more layers need attention simultaneously, with someone holding your hand every day."
-    ],
-    presentation: { Onset: 'From birth, severe', Reflexes: 'Heavily retained', Verbal: 'Limited / non-verbal', Biomedical: 'Heavy — full panel' },
-    intensity: 'HIGH',
-    tier: 'immersive',
-    approach: [
-      { title: 'Daily concierge', desc: "Monday-through-Friday clinical contact. You're not figuring this out alone — someone's checking in every weekday." },
-      { title: 'Full diagnostic', desc: 'Stool, OAT, Total Tox, and Neural Zoomer Plus all at intake. We need the full biomedical picture before titrating.' },
-      { title: 'Add-on heavy', desc: 'Stimpod for cymba concha + tongue stim. Class 3B laser layered on for cerebellum and brainstem work.' },
-      { title: 'Saturday deep-dives', desc: 'Weekly 60-min sessions with the clinical team to recalibrate and answer the week\'s questions.' }
-    ],
-    addOns: [
-      { name: 'Stimpod NMS460', purpose: 'Pulsed RF + electrical stim for tongue and cymba concha vagus work.' },
-      { name: 'Class 3B Laser', purpose: 'Higher-power laser for deeper brainstem and cerebellum penetration.' },
-      { name: 'PEMF mat', purpose: 'Whole-body pulsed electromagnetic field for sleep regulation and inflammation.' }
-    ],
-    addOnsNote: 'These come prescribed by Kyle after the intake assessment — not all Profile B children get all three.',
-    schedule: {
-      active: 'Daily M-F concierge plus 3-4× weekly OT/PT. ~10 sessions per active week.',
-      sample: '60-90 min daily protocol — split AM, midday, PM.'
-    },
-    daily: {
-      totalMin: '~75 min/day',
-      morning: {
-        when: 'After breakfast',
-        duration: '~25 min',
-        items: [
-          'Class 3B laser to L + R cerebellum (3 min each side)',
-          'Class 3B laser to L + R vagus + abdomen (3 min each)',
-          'Stimpod cymba concha L + R (90 sec each side)',
-          'Vagus oil applied to neck + peppermint to right nostril',
-          'Blue glasses with metronome (35-55 BPM) for 15 min',
-          'TENS on left paraspinal (concurrent with metronome)',
-          'Shen Men beads placed for the day'
-        ],
-        expects: 'This block looks intense on paper but flows quickly with a routine. Most B families build it around a morning show. Skipping it shows up as dysregulation by lunch.'
-      },
-      midday: {
-        when: 'Active block — clinical-led',
-        duration: '~25 min',
-        items: [
-          'Hub session guided by concierge over video (20 min)',
-          'Stimpod tongue stim: left / middle / right (30 sec each)',
-          'Stimpod face stim: rooting + masseter (2 min each side)',
-          'Speech protocol — CN-targeted sound sets (5 min)',
-          'PEMF mat sit (20 min — overlaps with Hub)',
-          'Wheelbarrow walk — 10 steps × 2 if motor coordination work assigned'
-        ],
-        expects: 'This is where most of the gains compound. Concierge is on video coaching in real time. If something feels off, say so — the protocol gets adjusted on the spot.'
-      },
-      evening: {
-        when: 'Before bedtime routine',
-        duration: '~25 min',
-        items: [
-          'Reflex sequence — rotating through 4-5 reflexes (8 min)',
-          'Cross-crawl exercises (2-3 min)',
-          'Brachiation / hang-from-bar if motor delay (1-2 min)',
-          'TENS up and down spine, then bottom-of-feet laser (5 min total)',
-          'Better Sleep frequency on LED panel (10 min before bed)',
-          'Olfactory wind-down: rosemary L, peppermint R',
-          'PEMF mat in sleep mode through the night (optional)'
-        ],
-        expects: 'The biggest block of the day. By week 4-5 the family has it choreographed. The sleep prep at the end (Better Sleep + olfactory) is what turns the day off — kids settle visibly.'
-      },
-      progression: 'Boot camp weeks 1-2 introduce the kit and supplements; daily protocol builds toward full intensity by week 3. Lab results return week 4-6 and biomedical layer is titrated. Weeks 7-9 are peak intensity. Weeks 10-12 transition cadence steps down — by graduation the family is independent on the daily protocol.'
-    }
-  },
-  C: {
-    letter: 'C',
-    name: 'Regression / Inflammatory',
-    color: 'var(--prof-c)',
-    softColor: 'var(--prof-c-soft)',
-    tagline: 'Was developing typically, then something changed.',
-    short: 'Typical development, then regression linked to environmental insult — mold, water damage, a new home.',
-    description: [
-      "Your child was hitting milestones. Words were coming. Social engagement was there. Then — somewhere between 18 months and 3 years for most — things slid backwards. Words disappeared. Eye contact thinned. Behaviors changed.",
-      "When we see this pattern, we look hard at the environment. Water damage in the home. A renovation. Recurrent infections. A move to a new house. Something flipped the immune system into chronic inflammation, and the developing brain caught the brunt of it.",
-      "The neurological work matters, but the bigger lever is biomedical. Get the inflammation down — clear the mycotoxins, restore the gut, support methylation — and the neurological gains often come faster than expected once that load is off."
-    ],
-    presentation: { Onset: '18-36 months regression', Reflexes: 'Borderline integration', Verbal: 'Lost words', Biomedical: 'Heavy — mold focus' },
-    intensity: 'MID',
-    tier: 'accelerated',
-    approach: [
-      { title: 'Full diagnostic up front', desc: 'Total Tox Burden is the lab that matters most. Mycotoxin section drives the next 6 weeks.' },
-      { title: 'Anti-inflammatory diet', desc: 'Whole-foods, low-carb, gluten-free starting in week 1 — even before the labs come back.' },
-      { title: 'Photobiomodulation heavy', desc: 'LED panel and laser used aggressively for inflammation and detox support.' },
-      { title: 'Stage 1 neurological', desc: 'Cranial nerves and vagal regulation primary. Reflex work is lighter — most of the lift comes from biomedical correction.' }
-    ],
-    addOns: [
-      { name: 'Sinus Key (binding swab)', purpose: 'For chronic sinus mold colonization, on indication from Total Tox.' },
-      { name: 'Extra LED panels', purpose: 'For families wanting longer photobiomodulation sessions during heavy detox phases.' }
-    ],
-    addOnsNote: 'Profile C add-ons are biomedical-supportive rather than neurological-add-ons. Diet and supplements do the heavy lifting alongside the foundational kit.',
-    schedule: {
-      active: '2-3× weekly OT/PT plus concierge for biomedical guidance. ~7 sessions per active week.',
-      sample: '40-60 min daily protocol heavy on PBM and gut work.'
-    },
-    daily: {
-      totalMin: '~50 min/day',
-      morning: {
-        when: 'After breakfast',
-        duration: '~18 min',
-        items: [
-          'LED panel session — frequency varies by week (15 min)',
-          'Laser over abdomen / liver / RUQ (5 min — concurrent with LED)',
-          'Peppermint to right nostril + vagus oil applied',
-          'Daily supplement stack: Intramax + Gut Feeling + lab-targeted additions',
-          'Shen Men beads placed',
-          'Anti-inflammatory breakfast (Paleo-style, gluten-free, low-glycemic)'
-        ],
-        expects: 'PBM (the LED panel) is the lever for inflammation. The 15-min morning session is non-negotiable. Skip days will show in mood and behavior within 48 hours.'
-      },
-      midday: {
-        when: 'Mid-day or after-school block',
-        duration: '~15 min',
-        items: [
-          'Hub session — calmer games when inflammation is high (15 min)',
-          'Gut/Immune laser: 5 min over each gut quadrant (or condensed during flares)',
-          'Vagal oil reapplied to neck',
-          'Anti-inflammatory snack with electrolytes',
-          'TENS on left paraspinal (concurrent with Hub)'
-        ],
-        expects: 'Profile C kids often have lower energy in the early weeks of biomedical work — the immune system is recalibrating. Don\'t fight a low-energy day; lean into it.'
-      },
-      evening: {
-        when: 'Before bedtime routine',
-        duration: '~18 min',
-        items: [
-          'Laser to L + R cerebellum (3 min each side)',
-          'Laser to brainstem region (3 min)',
-          'TENS over left paraspinal (5 min)',
-          'Bottom-of-feet laser for detox support (3 min)',
-          'PEMF mat for sleep prep (15-20 min)',
-          'Olfactory wind-down: rosemary + lavender'
-        ],
-        expects: 'Sleep is often the first thing to improve in Profile C — usually within weeks 2-3. Detox can intensify dreams temporarily; this passes by week 4-5.'
-      },
-      progression: 'Weeks 1-2: diet starts day 1, supplements ship with the kit, neurological work is light. Weeks 3-6: lab results return; biomedical protocol gets specific (mycotoxin binders if Total Tox positive). Weeks 7-9: as inflammation drops, neurological gains accelerate. Weeks 10-12: stabilize and transition to maintenance.'
-    }
-  },
-  D: {
-    letter: 'D',
-    name: 'Mild / Hemispheric',
-    color: 'var(--prof-d)',
-    softColor: 'var(--prof-d-soft)',
-    tagline: 'Almost there — just needs the right tuning.',
+
+  sensory_motor: {
+    key: 'sensory_motor',
+    bucket: 2,
+    severity: '3',
+    severityLabel: '3/10',
+    clinical: 'Sensory-Motor Disconnection',
+    name: 'Sensory-Motor Pattern',
+    color: 'var(--bk-sensory-motor)',
+    softColor: 'var(--bk-sensory-motor-soft)',
+    tagline: 'Almost there — coordination, balance, and reflex work are the levers.',
     short: 'Most milestones met. Specific weaknesses (vestibular, eye tracking, attention, dominance) standing out.',
     description: [
       "Your child is mostly on track. Speech is there. Most reflexes integrated. Social engagement reasonable. But something is off — maybe it's coordination, eye-tracking, focus, dominance not yet established, sensory quirks, or specific academic struggles.",
-      "What's underneath: a hemispheric imbalance. One side of the brain is doing more work than the other. The picture isn't dramatic — but it's real, and it shows up in the things you've been quietly noticing for months.",
+      "What's underneath: the cognitive hardware is largely in place, but the link between sensory input and motor output is noisy. Retained primitive reflexes, vestibular dysfunction, and cerebellar timing show up in the things you've been quietly noticing for months.",
       "This is the most common path through our program. The work is lighter, the protocol shorter, but the gains can be sharp because we're tuning a brain that's already mostly in place."
     ],
     presentation: { Onset: 'From birth, mild', Reflexes: 'Mostly integrated', Verbal: 'Yes', Biomedical: 'Light — Paleo focus' },
@@ -1910,7 +1805,7 @@ const profiles = {
       { title: 'Lighter biomedical', desc: 'Universal labs (Stool + OAT) only. Often a single supplement focus rather than a heavy stack.' }
     ],
     addOns: [],
-    addOnsNote: 'No add-ons typically needed. Profile D is the modal NeuroHome family — the foundational kit covers it.',
+    addOnsNote: 'No add-ons typically needed. Sensory-Motor is the modal NeuroHome family — the foundational kit covers it.',
     schedule: {
       active: 'Weekly OT/PT plus concierge check-ins. ~5 sessions per active week, lighter cadence.',
       sample: '20-30 min daily protocol.'
@@ -1926,7 +1821,7 @@ const profiles = {
           'Laser to L + R cerebellum (1-2 min each side)',
           'Shen Men beads placed for the day'
         ],
-        expects: 'The simplest morning of any profile. Most D families do it during breakfast — five minutes of dedicated time, plus passive blue-glasses time.'
+        expects: 'The simplest morning of any pattern. Most Sensory-Motor families do it during breakfast — five minutes of dedicated time, plus passive blue-glasses time.'
       },
       midday: {
         when: 'Mid-day or after-school block',
@@ -1950,16 +1845,21 @@ const profiles = {
           'TENS paraspinal (3 min — only on cued days)',
           'Peppermint + rosemary collar reapplied'
         ],
-        expects: 'D is a "less is more" profile. The plan looks light because it is — but consistency matters more than volume. Same 28 minutes, daily, for 12 weeks.'
+        expects: 'Sensory-Motor is a "less is more" pattern. The plan looks light because it is — but consistency matters more than volume. Same 28 minutes, daily, for 12 weeks.'
       },
-      progression: 'Weeks 1-2 are about installing the routine. Weeks 3-9 lock it in. Weeks 10-12 most D families have already integrated this into the daily rhythm — gains compound from the consistency, not the intensity.'
+      progression: 'Weeks 1-2 are about installing the routine. Weeks 3-9 lock it in. Weeks 10-12 most Sensory-Motor families have already integrated this into the daily rhythm — gains compound from the consistency, not the intensity.'
     }
   },
-  E: {
-    letter: 'E',
-    name: 'Acquired / Hypoxic',
-    color: 'var(--prof-e)',
-    softColor: 'var(--prof-e-soft)',
+
+  birth_structural: {
+    key: 'birth_structural',
+    bucket: 3,
+    severity: '4',
+    severityLabel: '4/10',
+    clinical: 'Birth Trauma / Structural Neurological',
+    name: 'Birth or Structural Pattern',
+    color: 'var(--bk-birth-structural)',
+    softColor: 'var(--bk-birth-structural-soft)',
     tagline: 'Recovery from a clear event.',
     short: 'Acquired brain injury or hypoxic event — birth complications, oxygen deprivation, post-illness regression.',
     description: [
@@ -1998,7 +1898,7 @@ const profiles = {
           'Vagus oil applied to neck',
           'Shen Men beads placed for the day'
         ],
-        expects: 'Site-specificity matters most for E. Generic full-body protocols don\'t move the needle; targeted protocols at the affected structure do. The OT confirms placement during weekly check-ins.'
+        expects: 'Site-specificity matters most for this pattern. Generic full-body protocols don\'t move the needle; targeted protocols at the affected structure do. The OT confirms placement during weekly check-ins.'
       },
       midday: {
         when: 'Active block',
@@ -2022,22 +1922,105 @@ const profiles = {
           'Olfactory wind-down: rosemary L, peppermint R',
           'PEMF mat for sleep (optional, 15 min)'
         ],
-        expects: 'Sleep quality is one of the earliest wins in Profile E — many parents report it improving inside the first two weeks. Protect the wind-down block; it\'s where consolidation happens.'
+        expects: 'Sleep quality is one of the earliest wins in this pattern — many parents report it improving inside the first two weeks. Protect the wind-down block; it\'s where consolidation happens.'
       },
       progression: 'Weeks 1-2: targeted PBM and vagal work begin; family learns precise placement. Weeks 3-6: Hub and motor exercises ramp up as tolerance improves. Weeks 7-9: peak intensity — this is where most of the rebuild compounds. Weeks 10-12: cadence steps down; Continuing Care plan discussed.'
     }
   },
-  F: {
-    letter: 'F',
-    name: 'PANS / PANDAS',
-    color: 'var(--prof-f)',
-    softColor: 'var(--prof-f-soft)',
+
+  environmental: {
+    key: 'environmental',
+    bucket: 5,
+    severity: '6',
+    severityLabel: '6/10',
+    clinical: 'Environmental Neuroinflammatory',
+    name: 'Environmental Inflammatory Pattern',
+    color: 'var(--bk-environmental)',
+    softColor: 'var(--bk-environmental-soft)',
+    tagline: 'Was developing typically, then chronic inflammation set in.',
+    short: 'Typical development, then gradual decline linked to environmental insult — mold, water damage, accumulated toxic load.',
+    description: [
+      "Your child was hitting milestones. Words were coming. Social engagement was there. Then — somewhere between 18 months and 3 years for most — things slid backwards. Words disappeared. Eye contact thinned. Behaviors changed. The decline was gradual rather than sudden.",
+      "When we see this pattern, we look hard at the environment. Water damage in the home. A renovation. A move to a new house. Something flipped the immune system into chronic inflammation — most often mold or accumulated toxic load — and the developing brain caught the brunt of it.",
+      "The neurological work matters, but the bigger lever is biomedical. Get the inflammation down — clear the mycotoxins, restore the gut, support methylation — and the neurological gains often come faster than expected once that load is off."
+    ],
+    presentation: { Onset: '18-36 months gradual decline', Reflexes: 'Borderline integration', Verbal: 'Lost words', Biomedical: 'Heavy — mold focus' },
+    intensity: 'MID',
+    tier: 'accelerated',
+    approach: [
+      { title: 'Full diagnostic up front', desc: 'Total Tox Burden is the lab that matters most. Mycotoxin section drives the next 6 weeks.' },
+      { title: 'Anti-inflammatory diet', desc: 'Whole-foods, low-carb, gluten-free starting in week 1 — even before the labs come back.' },
+      { title: 'Photobiomodulation heavy', desc: 'LED panel and laser used aggressively for inflammation and detox support.' },
+      { title: 'Stage 1 neurological', desc: 'Cranial nerves and vagal regulation primary. Reflex work is lighter — most of the lift comes from biomedical correction.' }
+    ],
+    addOns: [
+      { name: 'Sinus Key (binding swab)', purpose: 'For chronic sinus mold colonization, on indication from Total Tox.' },
+      { name: 'Extra LED panels', purpose: 'For families wanting longer photobiomodulation sessions during heavy detox phases.' }
+    ],
+    addOnsNote: 'Environmental Inflammatory add-ons are biomedical-supportive rather than neurological. Diet and supplements do the heavy lifting alongside the foundational kit.',
+    schedule: {
+      active: '2-3× weekly OT/PT plus concierge for biomedical guidance. ~7 sessions per active week.',
+      sample: '40-60 min daily protocol heavy on PBM and gut work.'
+    },
+    daily: {
+      totalMin: '~50 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~18 min',
+        items: [
+          'LED panel session — frequency varies by week (15 min)',
+          'Laser over abdomen / liver / RUQ (5 min — concurrent with LED)',
+          'Peppermint to right nostril + vagus oil applied',
+          'Daily supplement stack: Intramax + Gut Feeling + lab-targeted additions',
+          'Shen Men beads placed',
+          'Anti-inflammatory breakfast (Paleo-style, gluten-free, low-glycemic)'
+        ],
+        expects: 'PBM (the LED panel) is the lever for inflammation. The 15-min morning session is non-negotiable. Skip days will show in mood and behavior within 48 hours.'
+      },
+      midday: {
+        when: 'Mid-day or after-school block',
+        duration: '~15 min',
+        items: [
+          'Hub session — calmer games when inflammation is high (15 min)',
+          'Gut/Immune laser: 5 min over each gut quadrant (or condensed during flares)',
+          'Vagal oil reapplied to neck',
+          'Anti-inflammatory snack with electrolytes',
+          'TENS on left paraspinal (concurrent with Hub)'
+        ],
+        expects: 'Environmental kids often have lower energy in the early weeks of biomedical work — the immune system is recalibrating. Don\'t fight a low-energy day; lean into it.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~18 min',
+        items: [
+          'Laser to L + R cerebellum (3 min each side)',
+          'Laser to brainstem region (3 min)',
+          'TENS over left paraspinal (5 min)',
+          'Bottom-of-feet laser for detox support (3 min)',
+          'PEMF mat for sleep prep (15-20 min)',
+          'Olfactory wind-down: rosemary + lavender'
+        ],
+        expects: 'Sleep is often the first thing to improve in Environmental — usually within weeks 2-3. Detox can intensify dreams temporarily; this passes by week 4-5.'
+      },
+      progression: 'Weeks 1-2: diet starts day 1, supplements ship with the kit, neurological work is light. Weeks 3-6: lab results return; biomedical protocol gets specific (mycotoxin binders if Total Tox positive). Weeks 7-9: as inflammation drops, neurological gains accelerate. Weeks 10-12: stabilize and transition to maintenance.'
+    }
+  },
+
+  hyperimmune: {
+    key: 'hyperimmune',
+    bucket: 6,
+    severity: '7',
+    severityLabel: '7/10',
+    clinical: 'Hyperimmune (PANS / PANDAS-Like)',
+    name: 'Immune-Driven Pattern (PANS / PANDAS-like)',
+    color: 'var(--bk-hyperimmune)',
+    softColor: 'var(--bk-hyperimmune-soft)',
     tagline: 'Sudden behavioral storm — autoimmune brain inflammation.',
     short: 'Sudden onset of OCD, tics, anxiety, regression — typically following infection (strep, viral).',
     description: [
       "Your child changed almost overnight. New OCD-like behaviors. Sudden anxiety. Tics. Anger that wasn't there. Maybe regression in handwriting, eating, or toileting. The before-and-after timeline is sharp — often weeks rather than months.",
       "What's happening: the immune system, triggered by an infection (strep is classic, but it can be viral or other), starts producing antibodies that cross the blood-brain barrier and attack the basal ganglia. The behavior changes are inflammation in real time.",
-      "This is treatable. The neurological work matters, but the lever is anti-inflammatory and infection-clearing. Once the immune storm is calmed, the behaviors usually pull back. The plan combines biomedical and vagal regulation in a way the other profiles don't."
+      "This is treatable. The neurological work matters, but the lever is anti-inflammatory and infection-clearing. Once the immune storm is calmed, the behaviors usually pull back. The plan combines biomedical and vagal regulation in a way the other patterns don't."
     ],
     presentation: { Onset: 'Sudden post-infection', Reflexes: 'Variable', Verbal: 'Was on track', Biomedical: 'Heavy — neuro-immune' },
     intensity: 'MID-HIGH',
@@ -2053,7 +2036,7 @@ const profiles = {
       { name: 'Rezzimax tuner', purpose: 'Vibrational vagal regulation, used at home during behavioral flares.' },
       { name: 'VIP nasal spray', purpose: 'Vasoactive intestinal peptide for blood-brain barrier sealing (clinician-prescribed).' }
     ],
-    addOnsNote: 'Profile F add-ons are about calming the autonomic and immune systems — they\'re heavily layered onto the foundational kit during active flares.',
+    addOnsNote: 'Immune-Driven add-ons are about calming the autonomic and immune systems — they\'re heavily layered onto the foundational kit during active flares.',
     schedule: {
       active: '2-3× weekly OT/PT plus concierge daily during flares. ~8 sessions per active week.',
       sample: '50-70 min daily protocol with flare-day rescue protocol.'
@@ -2072,7 +2055,7 @@ const profiles = {
           'Blue glasses with calming frequency (10 min)',
           'Anti-inflammatory breakfast (Paleo, gluten-free)'
         ],
-        expects: 'Mornings can be the hardest part of the day for F kids — autoimmune storms peak overnight. Build the routine during a calm window first, then run it even on bad mornings. Consistency matters more than perfect execution.'
+        expects: 'Mornings can be the hardest part of the day for Immune-Driven kids — autoimmune storms peak overnight. Build the routine during a calm window first, then run it even on bad mornings. Consistency matters more than perfect execution.'
       },
       midday: {
         when: 'Mid-day or after-school block',
@@ -2097,10 +2080,90 @@ const profiles = {
           'Olfactory wind-down: rosemary + lavender',
           'Bottom-of-feet laser for parasympathetic prep'
         ],
-        expects: 'Sleep is medicine for Profile F. Protect it ruthlessly — screens off 60 min before bed, room dark and cool, sleep prep block executed every night, even when life is chaotic.'
+        expects: 'Sleep is medicine for this pattern. Protect it ruthlessly — screens off 60 min before bed, room dark and cool, sleep prep block executed every night, even when life is chaotic.'
       },
       flare: 'On flare days, ADD to the regular protocol: Custom protocol over left temple at 1-2 Hz for 3 min, Brainwave Endorphin Release near left ear for 3-5 min, Rezzimax up and down left side of spine, calming-frequency LED for an extra 20 min. Concierge available on video for support.',
       progression: 'Weeks 1-2: vagal calm protocol installed first; biomedical labs pulled. Weeks 3-6: NeuroZoom Plus results back, infection-clearing protocol begins. Weeks 7-9: behaviors typically start pulling back as inflammation drops. Weeks 10-12: maintenance protocol established; flare-day protocol kept on standby.'
+    }
+  },
+
+  acquired_regression: {
+    key: 'acquired_regression',
+    bucket: 7,
+    severity: '8',
+    severityLabel: '8/10',
+    clinical: 'Acquired Neurodevelopmental Regression',
+    name: 'Acquired Regression Pattern',
+    color: 'var(--bk-acquired-regression)',
+    softColor: 'var(--bk-acquired-regression-soft)',
+    tagline: 'Skills lost after a specific trigger — recovery has a clear target.',
+    short: 'Loss of skills following a discrete trigger — illness, vaccination, infection, or toxic event. Temporal arc is the defining feature.',
+    description: [
+      "Your child was on a developmental trajectory you could see — and then a specific event knocked them off course. An illness. A vaccination. A serious infection. A toxic exposure. Skills started disappearing in the weeks that followed: words, eye contact, motor coordination, social engagement.",
+      "What's happening: the trigger event activated an immune or inflammatory cascade that the developing brain hasn't yet cleared. The compounding loss is the brain compensating for what's still inflamed underneath. Unlike chronic Environmental cases, you have a clear before — and that's a powerful piece of clinical data.",
+      "Recovery is biomedical first — find and clear what's still driving the loss — then neurological rebuild on top of stable ground. Many families see meaningful return of pre-event capacities within the 12 weeks once the underlying driver is addressed."
+    ],
+    presentation: { Onset: 'Post-trigger event', Reflexes: 'Variable', Verbal: 'Lost — was on track', Biomedical: 'Heavy — driver-specific' },
+    intensity: 'MID-HIGH',
+    tier: 'accelerated',
+    approach: [
+      { title: 'Identify the driver', desc: 'Full diagnostic in week 1. The lab pattern tells us whether the residual is infectious, autoimmune, toxic, or mixed.' },
+      { title: 'Clear before rebuild', desc: 'The first 4-6 weeks focus on calming what\'s still active — anti-inflammatory work, infection-clearing if indicated, vagal regulation.' },
+      { title: 'Targeted recovery PBM', desc: 'Once inflammation drops, photobiomodulation supports the rebuild of the specific systems that regressed.' },
+      { title: 'Sequential reintroduction', desc: 'Pre-event capacities tend to come back in reverse order of how they were lost. We track this and lean into emerging skills as they surface.' }
+    ],
+    addOns: [
+      { name: 'Stimpod NMS460', purpose: 'Vagal regulation during the early calming phase.' },
+      { name: 'Class 3B Laser', purpose: 'Deeper PBM to support recovery of affected neural structures.' },
+      { name: 'PEMF mat', purpose: 'Inflammation reduction and sleep regulation through the active phase.' }
+    ],
+    addOnsNote: 'Acquired Regression add-ons are weighted toward calming the residual driver. Specific add-ons are selected after the diagnostic panel returns.',
+    schedule: {
+      active: '2-3× weekly OT/PT plus concierge daily through the early calming phase. ~8 sessions per active week.',
+      sample: '50-70 min daily protocol, biomedical-led early.'
+    },
+    daily: {
+      totalMin: '~60 min/day',
+      morning: {
+        when: 'After breakfast',
+        duration: '~20 min',
+        items: [
+          'Stimpod cymba concha L + R (90 sec each side)',
+          'Vagus oil + Rezzimax up the spine (5 min)',
+          'LED panel session — anti-inflammatory frequency (15 min)',
+          'Anti-inflammatory laser to forehead and temples (3 min)',
+          'Olfactory: rosemary L, peppermint R',
+          'Daily supplement stack — driver-specific (lab-guided after week 4)',
+          'Anti-inflammatory breakfast (Paleo, low-glycemic)'
+        ],
+        expects: 'Early weeks feel slow on purpose. The body needs to clear before it rebuilds. Sleep often improves first, sometimes within two weeks — that\'s the first signal the underlying driver is calming.'
+      },
+      midday: {
+        when: 'Mid-day or after-school block',
+        duration: '~17 min',
+        items: [
+          'Hub session — gentle game selection during clearing phase (15 min)',
+          'Stimpod placement on affected side (5 min)',
+          'OT-assigned motor or speech rebuild exercise — varies by lost capacity',
+          'Vagal oil reapplied',
+          'Light snack with anti-inflammatory ingredients'
+        ],
+        expects: 'Don\'t push the rebuild work in weeks 1-4. Once labs return and inflammation drops, the OT progresses the protocol — capacities tend to return in reverse order of how they were lost.'
+      },
+      evening: {
+        when: 'Before bedtime routine',
+        duration: '~20 min',
+        items: [
+          'LED panel for full-brain anti-inflammatory (15 min)',
+          'TENS up and down spine — calm settings (5 min)',
+          'Bottom-of-feet laser for parasympathetic prep (3 min)',
+          'PEMF mat for sleep (15-20 min — overlaps)',
+          'Olfactory wind-down: rosemary + lavender',
+          'Better Sleep laser routine before bed (3 min)'
+        ],
+        expects: 'Sleep restoration is one of the earliest wins and one of the most important. The brain consolidates and clears during deep sleep — protect it ruthlessly.'
+      },
+      progression: 'Weeks 1-2: vagal calm protocol installed first; full diagnostic panel pulled. Weeks 3-6: labs return, driver-specific protocol begins. Weeks 7-9: as the driver clears, lost capacities begin returning — sometimes in surprising sequences. Weeks 10-12: rebuild compounds; Continuing Care plan typically discussed for ongoing recovery work.'
     }
   }
 };
@@ -2221,158 +2284,158 @@ const TEAM = [
 
 const COHORT_STAT = {
   num: '41',
-  label: 'children classified into the 6 profiles',
-  detail: 'The profile patterns and prescriptions you see here are pulled from 41 pediatric cases we\'ve worked through, ranging from 6-month-old hypoxic recovery to 14-year-old PANS/PANDAS. The classification system is based on real clinical data — not theory.'
+  label: 'children classified across the 7 clinical buckets',
+  detail: 'The bucket patterns and prescriptions you see here are pulled from 41 pediatric cases we\'ve worked through, ranging from 6-month-old hypoxic recovery to 14-year-old PANS/PANDAS. The classification system is based on real clinical data — not theory.'
 };
 
 /* ═════════════════════════════════════════════════
    PATIENT STORIES — illustrative composites; swap with consented testimonials
-   18 stories, 3 per profile. Color/soft derived from profile object at render time.
+   18 stories, 3 per bucket. Color/soft derived from bucket lookup at render time.
    ═════════════════════════════════════════════════ */
 const STORIES = [
-  /* ── Profile A ─────────────────────────── */
+  /* ── Foundational (was A + heavier Foundational cases that were tagged B) ── */
   {
-    name: 'Lucas', age: 4, profileLetter: 'A',
+    name: 'Lucas', age: 4, bucketKey: 'foundational',
     arc: '<strong>Before:</strong> Limited words at 4. Got frustrated easily. Pulled away from playgroups. <strong>Twelve weeks later:</strong> Three- and four-word sentences. Asking questions. Initiating play with cousins for the first time.',
     quote: 'The first time he asked me where the dog was — actually asked, with words — I had to leave the room and cry.',
     attribution: '— Lucas\'s mom'
   },
   {
-    name: 'Sebastian', age: 3, profileLetter: 'A',
+    name: 'Sebastian', age: 3, bucketKey: 'foundational',
     arc: '<strong>Before:</strong> Non-verbal at 3. Autism diagnosis six months earlier. ATEC of 87. <strong>Twelve weeks later:</strong> First clear words. Pointing to request things. ATEC down to 64.',
     quote: 'We\'d been told to manage expectations. After the first word came, the second was three days later. The fourth was that same week.',
     attribution: '— Sebastian\'s parents'
   },
   {
-    name: 'Mia', age: 5, profileLetter: 'A',
-    arc: '<strong>Before:</strong> Two-word phrases at 5. Daily sensory meltdowns. Couldn\'t tolerate group settings. <strong>Twelve weeks later:</strong> Full sentences. Half the meltdowns gone. Started kindergarten on her birthday.',
-    quote: 'She walked into kindergarten on day one and didn\'t cry at drop-off. I was the one who cried, in the parking lot.',
-    attribution: '— Mia\'s mom'
-  },
-
-  /* ── Profile B ─────────────────────────── */
-  {
-    name: 'Adam', age: 6, profileLetter: 'B',
-    arc: '<strong>Before:</strong> Severe presentation. Non-verbal. Significant gut issues. Multiple meltdowns daily. <strong>Twelve weeks of Immersive:</strong> First sustained eye contact in years. Sleeping through the night. Storms half as frequent.',
-    quote: 'We weren\'t expecting language yet. We got something more important — we got our family functioning again.',
-    attribution: '— Adam\'s parents'
-  },
-  {
-    name: 'Daniel', age: 4, profileLetter: 'B',
+    name: 'Daniel', age: 4, bucketKey: 'foundational',
     arc: '<strong>Before:</strong> Limited speech. Severe food sensitivities. Daily behavioral challenges. Mom hadn\'t slept through a night in 18 months. <strong>Twelve weeks later:</strong> Sleeping. Eating a wider variety. Words emerging.',
     quote: 'The first month, the gains were quiet — sleep, less screaming. By week 8 we realized we\'d stopped white-knuckling every dinner.',
     attribution: '— Daniel\'s mom'
   },
-  {
-    name: 'Sofia', age: 7, profileLetter: 'B',
-    arc: '<strong>Before:</strong> Late diagnosis. Multiple developmental gaps. Significant biomedical findings — gut, mitochondrial, methylation. <strong>Twelve weeks combined:</strong> Speech progress, behavioral regulation, gut symptoms calming.',
-    quote: 'I\'d given up on hearing her say my name. She said it on a Tuesday in week 9. I wrote the date down somewhere I can see it.',
-    attribution: '— Sofia\'s mom'
-  },
 
-  /* ── Profile C ─────────────────────────── */
+  /* ── Sensory-Motor (was D) ── */
   {
-    name: 'Maya', age: 7, profileLetter: 'C',
-    arc: '<strong>Before:</strong> Lost most of her language and stopped sleeping after a basement renovation. Total Tox showed mycotoxins through the roof. <strong>Twelve weeks later:</strong> Sleeping through the night. Sentences returning. The girl her grandparents remember.',
-    quote: 'For two years we didn\'t know what happened to her. The labs gave us a picture. The protocol gave us our daughter back.',
-    attribution: '— Maya\'s parents'
-  },
-  {
-    name: 'Henry', age: 5, profileLetter: 'C',
-    arc: '<strong>Before:</strong> Lost language at 3 after a move to a water-damaged rental. Pediatrician said "wait and see." We waited two years. <strong>Twelve weeks of biomedical-led work:</strong> First full sentences in two years. Sleep restored.',
-    quote: 'The mold report explained everything we\'d been missing. The recovery — we still pinch ourselves every day.',
-    attribution: '— Henry\'s dad'
-  },
-  {
-    name: 'Aria', age: 6, profileLetter: 'C',
-    arc: '<strong>Before:</strong> Regression around age 3 after our home renovation. Behaviors elevated, sleep gone, language lost. <strong>Twelve weeks of inflammation-first protocol:</strong> Words returning, behaviors softening, family stable again.',
-    quote: 'I stopped grieving the child she was. By week 8 I realized she was coming back.',
-    attribution: '— Aria\'s mom'
-  },
-
-  /* ── Profile D ─────────────────────────── */
-  {
-    name: 'Ezra', age: 3, profileLetter: 'D',
+    name: 'Ezra', age: 3, bucketKey: 'sensory_motor',
     arc: '<strong>Before:</strong> Clumsy. Couldn\'t catch a ball. Anxious on playground equipment. Preschool flagged coordination concerns. <strong>Twelve weeks later:</strong> Riding a balance bike. Catching tennis balls. Confident on the play structures.',
     quote: 'I expected language and academic stuff. I didn\'t expect him to actually start liking his own body.',
     attribution: '— Ezra\'s mom'
   },
   {
-    name: 'Olivia', age: 8, profileLetter: 'D',
+    name: 'Olivia', age: 8, bucketKey: 'sensory_motor',
     arc: '<strong>Before:</strong> Smart kid struggling in school. Reading lagged. Attention drifted. Tutor said "she\'s not lazy — something\'s off neurologically." <strong>Twelve weeks later:</strong> Reading clicked. Her teacher emailed asking what we\'d changed.',
     quote: 'We weren\'t sure she even fit the program. Her gains weren\'t dramatic — they were exactly the right ones.',
     attribution: '— Olivia\'s mom'
   },
   {
-    name: 'Theo', age: 6, profileLetter: 'D',
+    name: 'Theo', age: 6, bucketKey: 'sensory_motor',
     arc: '<strong>Before:</strong> Visual tracking issues, balance struggles, falling more than peers. Confidence shrinking. <strong>Twelve weeks later:</strong> Athletic again. Bike riding. Joined a soccer team without me bracing for tears.',
     quote: 'He raised his hand in class for the first time. The teacher emailed me about it. That was week 10.',
     attribution: '— Theo\'s dad'
   },
 
-  /* ── Profile E ─────────────────────────── */
+  /* ── Birth or Structural (was E) ── */
   {
-    name: 'Jonah', age: 2, profileLetter: 'E',
+    name: 'Jonah', age: 2, bucketKey: 'birth_structural',
     arc: '<strong>Before:</strong> Birth complications, oxygen issues. Motor delays evident by 18 months. <strong>Twelve weeks of targeted PBM and motor work, starting at 22 months:</strong> Standing unassisted. First independent steps. Receptive language emerging.',
     quote: 'We\'d been told he might never walk independently. We don\'t take a single step for granted.',
     attribution: '— Jonah\'s parents'
   },
   {
-    name: 'Audrey', age: 5, profileLetter: 'E',
-    arc: '<strong>Before:</strong> Severe post-viral regression at 4 — lost speech and motor coordination over six weeks. Pediatric neurologist had no protocol to offer. <strong>Twelve weeks later:</strong> Speech returning, motor function rebuilding.',
-    quote: 'The neurologist said "we don\'t know what to do." Kyle said "we know exactly where to start." That\'s why we\'re here.',
-    attribution: '— Audrey\'s mom'
-  },
-  {
-    name: 'Marcus', age: 4, profileLetter: 'E',
+    name: 'Marcus', age: 4, bucketKey: 'birth_structural',
     arc: '<strong>Before:</strong> Hypoxic event during illness at 18 months. Cerebellar findings on MRI. <strong>Twelve weeks of targeted PBM and Stimpod work:</strong> Significant motor planning gains. Eye tracking visibly improving.',
     quote: 'The MRI scared us so much we stopped looking at it. Now we frame the before-and-after of week 12.',
     attribution: '— Marcus\'s dad'
   },
-
-  /* ── Profile F ─────────────────────────── */
   {
-    name: 'Charlotte', age: 9, profileLetter: 'F',
+    name: 'Sofia', age: 7, bucketKey: 'birth_structural',
+    arc: '<strong>Before:</strong> Late diagnosis after a difficult birth. Motor planning gaps. Significant biomedical findings — gut, mitochondrial, methylation. <strong>Twelve weeks combined:</strong> Speech progress, motor regulation, gut symptoms calming.',
+    quote: 'I\'d given up on hearing her say my name. She said it on a Tuesday in week 9. I wrote the date down somewhere I can see it.',
+    attribution: '— Sofia\'s mom'
+  },
+
+  /* ── Environmental Inflammatory (was C, gradual-onset subset) ── */
+  {
+    name: 'Maya', age: 7, bucketKey: 'environmental',
+    arc: '<strong>Before:</strong> Lost most of her language and stopped sleeping after a basement renovation. Total Tox showed mycotoxins through the roof. <strong>Twelve weeks later:</strong> Sleeping through the night. Sentences returning. The girl her grandparents remember.',
+    quote: 'For two years we didn\'t know what happened to her. The labs gave us a picture. The protocol gave us our daughter back.',
+    attribution: '— Maya\'s parents'
+  },
+  {
+    name: 'Henry', age: 5, bucketKey: 'environmental',
+    arc: '<strong>Before:</strong> Lost language at 3 after a move to a water-damaged rental. Pediatrician said "wait and see." We waited two years. <strong>Twelve weeks of biomedical-led work:</strong> First full sentences in two years. Sleep restored.',
+    quote: 'The mold report explained everything we\'d been missing. The recovery — we still pinch ourselves every day.',
+    attribution: '— Henry\'s dad'
+  },
+  {
+    name: 'Aria', age: 6, bucketKey: 'environmental',
+    arc: '<strong>Before:</strong> Gradual regression around age 3 after our home renovation. Behaviors elevated, sleep gone, language lost. <strong>Twelve weeks of inflammation-first protocol:</strong> Words returning, behaviors softening, family stable again.',
+    quote: 'I stopped grieving the child she was. By week 8 I realized she was coming back.',
+    attribution: '— Aria\'s mom'
+  },
+
+  /* ── Immune-Driven · PANS / PANDAS (was F) ── */
+  {
+    name: 'Charlotte', age: 9, bucketKey: 'hyperimmune',
     arc: '<strong>Before:</strong> Sudden OCD onset after strep at age 8. Two hospitalizations. Missed half of second grade. Refused to leave her room. <strong>Twelve weeks later:</strong> Stable. Back in school full-time. OCD manageable with the protocol on standby for flares.',
     quote: 'She came back to us. That\'s the only way I know how to say it. She came back.',
     attribution: '— Charlotte\'s dad'
   },
   {
-    name: 'Beatrix', age: 11, profileLetter: 'F',
+    name: 'Beatrix', age: 11, bucketKey: 'hyperimmune',
     arc: '<strong>Before:</strong> Sudden tics and anxiety after a virus at 10. Personality changed almost overnight. School year nearly lost. <strong>Twelve weeks later:</strong> Tics reduced significantly. Anxiety manageable. Beatrix returning.',
     quote: 'For a while I lost my daughter to whatever was attacking her brain. The protocol gave her back to herself.',
     attribution: '— Beatrix\'s mom'
   },
   {
-    name: 'Owen', age: 7, profileLetter: 'F',
+    name: 'Owen', age: 7, bucketKey: 'hyperimmune',
     arc: '<strong>Before:</strong> Strep-triggered behavioral storm at 6. New OCD, separation anxiety, school refusal. <strong>Twelve weeks of vagal-calm + infection-clearing protocol:</strong> Calm. School. Friends again. Flare protocol on standby.',
     quote: 'We have a kid again. Not a perfect kid — he never was. But our kid. Hyper, funny, kind. The kid we knew.',
     attribution: '— Owen\'s parents'
+  },
+
+  /* ── Acquired Regression (was the post-trigger subset of C, plus the E post-viral case) ── */
+  {
+    name: 'Audrey', age: 5, bucketKey: 'acquired_regression',
+    arc: '<strong>Before:</strong> Severe post-viral regression at 4 — lost speech and motor coordination over six weeks. Pediatric neurologist had no protocol to offer. <strong>Twelve weeks later:</strong> Speech returning, motor function rebuilding.',
+    quote: 'The neurologist said "we don\'t know what to do." Kyle said "we know exactly where to start." That\'s why we\'re here.',
+    attribution: '— Audrey\'s mom'
+  },
+  {
+    name: 'Mia', age: 5, bucketKey: 'acquired_regression',
+    arc: '<strong>Before:</strong> Lost speech and regressed socially after a serious illness at 3. Diagnosed as "regressive autism." <strong>Twelve weeks of driver-clearing protocol followed by targeted rebuild:</strong> Words returning. Eye contact warming. ATEC trending the right direction.',
+    quote: 'She walked into kindergarten on day one and didn\'t cry at drop-off. I was the one who cried, in the parking lot.',
+    attribution: '— Mia\'s mom'
+  },
+  {
+    name: 'Adam', age: 6, bucketKey: 'acquired_regression',
+    arc: '<strong>Before:</strong> Regression after a course of antibiotics at age 4. Gut crashed, speech faded, behaviors emerged that weren\'t there before. <strong>Twelve weeks of biomedical-first protocol:</strong> First sustained eye contact in years. Sleeping through the night. Storms half as frequent.',
+    quote: 'We weren\'t expecting language yet. We got something more important — we got our family functioning again.',
+    attribution: '— Adam\'s parents'
   }
 ];
 
-/* Which profiles to feature on the welcome page (one story from each) */
-const WELCOME_STORY_LETTERS = ['A', 'C', 'F'];
+/* Which buckets to feature on the welcome page (one story from each) */
+const WELCOME_STORY_BUCKETS = ['foundational', 'environmental', 'hyperimmune'];
 
-function getStoriesForProfile(letter) {
-  return STORIES.filter(s => s.profileLetter === letter);
+function getStoriesForBucket(bucketKey) {
+  return STORIES.filter(s => s.bucketKey === bucketKey);
 }
 
 function getWelcomeStories() {
-  return WELCOME_STORY_LETTERS.map(letter =>
-    STORIES.find(s => s.profileLetter === letter)
+  return WELCOME_STORY_BUCKETS.map(key =>
+    STORIES.find(s => s.bucketKey === key)
   );
 }
 
-/* Reusable story-card renderer — pulls color from the profile lookup */
+/* Reusable story-card renderer — pulls color from the bucket lookup */
 function renderStoryCards(stories) {
   return stories.map(s => {
-    const prof = profiles[s.profileLetter];
+    const b = buckets[s.bucketKey];
     return `
-    <div class="story-card" style="--story-color: ${prof.color}; --story-soft: ${prof.softColor}">
+    <div class="story-card" style="--story-color: ${b.color}; --story-soft: ${b.softColor}">
       <div class="story-header">
         <div class="story-name">${s.name}, ${s.age}</div>
-        <div class="story-meta">Profile ${s.profileLetter}</div>
+        <div class="story-meta">${b.name}</div>
       </div>
       <div class="story-arc">${s.arc}</div>
       <div class="story-quote">${s.quote}</div>
@@ -2387,35 +2450,35 @@ function renderStoryCards(stories) {
    Honest framing: trajectory, not promises. Mirrors clinical voice.
    ═════════════════════════════════════════════════ */
 const CHANGE_PATTERNS = {
-  A: {
+  foundational: {
     early: 'Better sleep. Calmer transitions. Reduced sensory overwhelm. Reflexes feel softer when re-tested. The nervous system is starting to settle — the foundation gains build on.',
     middle: 'Increased engagement. Eye contact warming. New sounds, syllables, or first words. Reflex responses changing. Sensory tolerance widening.',
     late: 'Longer attention spans. Motor planning gains showing in coordination. Functional skills emerging — words combining, intentional play. Compensation patterns starting to release.'
   },
-  B: {
-    early: 'Sleep improvements typically come first. Behavioral storms reduce in frequency or intensity. Family regains breathing room and the daily routine takes hold.',
-    middle: 'Lab-guided biomedical layer kicks in. Primitive reflexes start releasing. Sensory tolerance widens. Family starts to see "moments" of their child more frequently.',
-    late: 'Compounding gains across speech, motor, and regulation — sometimes unevenly. Trajectory matters more than day-to-day variation. Many B families describe a clear "turn" around week 8-10.'
-  },
-  C: {
-    early: 'Diet and supplement effects show up early — sometimes as energy shifts, mood changes, or mild healing reactions (normal, temporary). Sleep typically improves.',
-    middle: 'As inflammation drops, words start coming back. Eye contact returns. Elevated behaviors begin to soften. The "before" child families remember begins to resurface.',
-    late: 'Functional language. Renewed engagement. Behavioral stability. Earlier-developing skills tend to come back first; newer skills follow.'
-  },
-  D: {
+  sensory_motor: {
     early: 'Coordination starts to feel more automatic. Less effort in activities that were straining. Sleep often deepens.',
     middle: 'The targeted weak channel — vestibular, eye tracking, attention — shows clear progress. Confidence noticeably increases. Athletic and academic gains often appear together.',
     late: 'Skills consolidate. Activities that were hard 12 weeks ago feel routine. The hemispheric balance is more even — and parents often hear unsolicited feedback from teachers.'
   },
-  E: {
+  birth_structural: {
     early: 'Sleep quality typically improves first. Specific motor functions begin to show micro-progress at the targeted recovery sites. Vagal tone shifts visibly.',
     middle: 'Larger motor planning gains. Recovery sites respond to the precise input. Family starts to see pre-event capacities returning — sometimes in surprising sequences.',
-    late: 'Compounding gains in the affected systems. Recovery isn\'t always linear, but the trajectory is consistent. Many E families continue with Continuing Care to keep building.'
+    late: 'Compounding gains in the affected systems. Recovery isn\'t always linear, but the trajectory is consistent. Many families continue with Continuing Care to keep building.'
   },
-  F: {
+  environmental: {
+    early: 'Diet and supplement effects show up early — sometimes as energy shifts, mood changes, or mild healing reactions (normal, temporary). Sleep typically improves.',
+    middle: 'As inflammation drops, words start coming back. Eye contact returns. Elevated behaviors begin to soften. The "before" child families remember begins to resurface.',
+    late: 'Functional language. Renewed engagement. Behavioral stability. Earlier-developing skills tend to come back first; newer skills follow.'
+  },
+  hyperimmune: {
     early: 'Vagal calm protocol typically reduces flare frequency or intensity. Sleep often improves first. Behavioral storms become more predictable — and that predictability is itself a gain.',
     middle: 'As the infection-clearing protocol takes hold, behaviors start pulling back. OCD-type rituals soften. Tics decrease. Anxiety becomes more manageable.',
     late: 'Stabilization. Flare response is faster when they happen. Family has tools and confidence. The child\'s "before infection" personality often starts surfacing — usually the most emotional moment of the program.'
+  },
+  acquired_regression: {
+    early: 'Sleep often improves first as the residual driver starts calming. Behavioral volatility tends to soften within the first 2-3 weeks. Early lab return guides what comes next.',
+    middle: 'Once the driver is identified and cleared, lost capacities begin to surface — often in reverse order of how they were lost. The "before" child families remember starts to come back into view.',
+    late: 'Compounding rebuild. Pre-event language, social engagement, and motor skills consolidate. Many families continue with Continuing Care for the ongoing recovery arc.'
   }
 };
 
@@ -2447,7 +2510,7 @@ const LABS = [
     name: 'Total Tox Burden',
     sub: 'Mycotoxins + environmental + heavy metals · urine',
     checks: 'Mold and mycotoxin exposure, pesticide and chemical burden, heavy metal accumulation.',
-    looking: 'Critical for Profile C (regression) — mold and water-damaged buildings are common silent triggers. Also relevant when biomedical work isn\'t responding as expected.'
+    looking: 'Critical for the Environmental Inflammatory pattern — mold and water-damaged buildings are common silent triggers. Also relevant when biomedical work isn\'t responding as expected.'
   },
   {
     tier: 'full',
@@ -2455,7 +2518,7 @@ const LABS = [
     name: 'Neural Zoomer Plus',
     sub: 'Bloodborne neuro-immune + infection markers',
     checks: 'Group A Strep, EBV, HSV, HHV, autoimmune brain markers, blood-brain barrier integrity.',
-    looking: 'The Profile F panel. Identifies the infections and autoimmune patterns that drive PANS/PANDAS presentations. Also flags BBB issues that may compound other profiles.'
+    looking: 'The Immune-Driven panel. Identifies the infections and autoimmune patterns that drive PANS/PANDAS presentations. Also flags BBB issues that may compound other patterns.'
   }
 ];
 
@@ -2467,7 +2530,7 @@ const RIGHTFIT = {
     { profileMin: '20-30 min/day', text: 'A daily commitment of <strong>%MIN%</strong> for 12 weeks. Most parents do it in two blocks (morning + evening) with optional midday.' },
     { text: 'A primary caregiver who can run the protocol most days. Backup caregivers can help, but one consistent runner does best.' },
     { text: 'Space at home for the kit and a few minutes of focused time daily.' },
-    { text: 'Willingness to make dietary modifications (especially Profiles B, C, F — Paleo-style anti-inflammatory framework).' },
+    { text: 'Willingness to make dietary modifications (especially Environmental, Immune-Driven, and Acquired Regression patterns — Paleo-style anti-inflammatory framework).' },
     { text: 'Patience. Neuroplastic change is real but rarely overnight — most families see the strongest gains weeks 8-12.' },
     { text: 'Honesty during the discovery call about what is and isn\'t realistic in your family\'s situation.' }
   ],
@@ -2481,9 +2544,9 @@ const RIGHTFIT = {
   honesty: 'About one in four families we speak with end up choosing another path — sometimes because the timing isn\'t right, sometimes because the commitment doesn\'t fit, sometimes because their child needs something we don\'t offer. That\'s fine. Our job is to help, not to sell.'
 };
 
-/* Profile-aware daily-minutes string for the right-fit "yes" list */
-function getProfileDailyMin(profile) {
-  return profile.daily.totalMin.replace(/[~\s]/g, '').replace('/day', '') + ' / day';
+/* Bucket-aware daily-minutes string for the right-fit "yes" list */
+function getBucketDailyMin(b) {
+  return b.daily.totalMin.replace(/[~\s]/g, '').replace('/day', '') + ' / day';
 }
 
 /* ═════════════════════════════════════════════════
@@ -2500,11 +2563,11 @@ const FAQ = [
   },
   {
     q: 'Is this safe? Are there side effects?',
-    a: '<p>All devices are FDA-cleared and Class 1 / eye-safe across the kit — no parent certifications required. Supplements are practitioner-grade.</p><p>Some children experience early "recalibration" symptoms in the first 1-2 weeks: temporary sleep changes, mood shifts, mild detox responses (Profile C especially during mold-clearing). The concierge calls in the first week are designed to catch and adjust for these.</p>'
+    a: '<p>All devices are FDA-cleared and Class 1 / eye-safe across the kit — no parent certifications required. Supplements are practitioner-grade.</p><p>Some children experience early "recalibration" symptoms in the first 1-2 weeks: temporary sleep changes, mood shifts, mild detox responses (Environmental Inflammatory pattern especially during mold-clearing). The concierge calls in the first week are designed to catch and adjust for these.</p>'
   },
   {
-    q: 'What if my child doesn\'t fit one profile cleanly?',
-    a: '<p>Many don\'t, exactly. Profiles are starting points — clinical patterns we\'ve seen across 41 cases — not boxes. Mixed presentations are common; Profile A often overlaps with B or D, Profile F can co-exist with Profile C inflammation patterns.</p><p>Your child\'s actual prescription is personalized after a full intake by a clinician. The quiz at the start of this page is a quick orientation, not a diagnosis.</p>'
+    q: 'What if my child doesn\'t fit one pattern cleanly?',
+    a: '<p>Many don\'t, exactly. Buckets are starting points — clinical patterns we\'ve seen across 41 cases — not boxes. Mixed presentations are common; Foundational often overlaps with Sensory-Motor, and Immune-Driven can co-exist with Environmental inflammation patterns.</p><p>Your child\'s actual prescription is personalized after a full intake by a clinician. The quiz at the start of this page is a quick orientation, not a diagnosis.</p>'
   },
   {
     q: 'Does insurance cover this?',
@@ -2512,7 +2575,7 @@ const FAQ = [
   },
   {
     q: 'What ages do you work with?',
-    a: '<p>Most of our cohort is 2-12 years old. We work with children as young as 6 months in specific cases (typically Profile E acquired) and as old as 16 (typically Profile F PANS/PANDAS).</p><p>The principles apply at any age, but earlier intervention typically has more dramatic results because there\'s less compensation pattern to overcome.</p>'
+    a: '<p>Most of our cohort is 2-12 years old. We work with children as young as 6 months in specific cases (typically Birth or Structural recovery) and as old as 16 (typically Immune-Driven · PANS/PANDAS).</p><p>The principles apply at any age, but earlier intervention typically has more dramatic results because there\'s less compensation pattern to overcome.</p>'
   },
   {
     q: 'What happens if we miss a day?',
@@ -2524,7 +2587,7 @@ const FAQ = [
   },
   {
     q: 'How do you decide what to prescribe?',
-    a: '<p>Three sources: ① the cohort data — 41 children we\'ve worked with, classified into the 6 profiles; ② Dr. Kyle\'s clinical assessment of your child\'s specific presentation through video and intake review; ③ lab results that surface biomedical drivers.</p><p>The Profile assignment frames it. The prescription personalizes it. Lab results refine it.</p>'
+    a: '<p>Three sources: ① the cohort data — 41 children we\'ve worked with, classified across the 7 clinical buckets; ② Dr. Kyle\'s clinical assessment of your child\'s specific presentation through video and intake review; ③ lab results that surface biomedical drivers.</p><p>The bucket assignment frames it. The prescription personalizes it. Lab results refine it.</p>'
   },
   {
     q: 'What\'s photobiomodulation (laser/LED) actually doing?',
@@ -2540,11 +2603,11 @@ const FAQ = [
   },
   {
     q: 'What if we want to continue past 12 weeks?',
-    a: '<p>Many families do. We offer Continuing Care plans starting at month 4: maintenance protocols, ongoing supplement supply, and lighter clinical contact (typically 30-60 min per week).</p><p>Most Profile A and D families maintain their gains with the lighter cadence. Profile B, C, E, and F families sometimes continue at higher intensity for 6-12 months depending on labs and trajectory.</p>'
+    a: '<p>Many families do. We offer Continuing Care plans starting at month 4: maintenance protocols, ongoing supplement supply, and lighter clinical contact (typically 30-60 min per week).</p><p>Most Foundational and Sensory-Motor families maintain their gains with the lighter cadence. Environmental, Birth/Structural, Immune-Driven, and Acquired Regression families sometimes continue at higher intensity for 6-12 months depending on labs and trajectory.</p>'
   },
   {
     q: 'What outcomes can I realistically expect?',
-    a: '<p>Honestly: a range. Some children respond fast and dramatically — language returning in weeks, behavior calming, sleep improving. Others respond slowly and steadily — small gains compounding over the 12 weeks. A small number don\'t respond strongly to the protocol; in those cases, we typically catch it around week 4-6 and either adjust or recommend a different path.</p><p>We track outcomes per profile so we can be honest with you during the discovery call about what families with similar presentations have typically experienced.</p>'
+    a: '<p>Honestly: a range. Some children respond fast and dramatically — language returning in weeks, behavior calming, sleep improving. Others respond slowly and steadily — small gains compounding over the 12 weeks. A small number don\'t respond strongly to the protocol; in those cases, we typically catch it around week 4-6 and either adjust or recommend a different path.</p><p>We track outcomes per bucket so we can be honest with you during the discovery call about what families with similar presentations have typically experienced.</p>'
   },
   {
     q: 'Do I need to be home every day to run the protocol?',
@@ -2559,7 +2622,7 @@ const DISCOVERY = {
   covers: [
     'Review your intake responses in detail',
     'Watch a 1-2 min video of your child if you can share one',
-    'Discuss the recommended profile and tier',
+    'Discuss the recommended pattern and tier',
     'Answer your specific questions honestly',
     'Help you decide if NeuroHome is right for your family',
     'Walk you through next steps if it is — or send you elsewhere if it isn\'t'
@@ -2568,11 +2631,11 @@ const DISCOVERY = {
 };
 
 /* ═════════════════════════════════════════════════
-   INTAKE QUESTIONS & PROFILE ROUTING
+   INTAKE QUESTIONS & BUCKET ROUTING
    ═════════════════════════════════════════════════ */
 const questions = [
   {
-    label: 'Question 01 of 04',
+    label: 'Question 01 of 06',
     text: 'How old is your <em>child</em>?',
     options: [
       { text: 'Under 2 years', value: 'age_lt2' },
@@ -2583,7 +2646,7 @@ const questions = [
     ]
   },
   {
-    label: 'Question 02 of 04',
+    label: 'Question 02 of 06',
     text: 'What concerns you <em>most</em>?',
     options: [
       { text: 'Speech and language delays', value: 'concern_speech' },
@@ -2593,35 +2656,94 @@ const questions = [
     ]
   },
   {
-    label: 'Question 03 of 04',
+    label: 'Question 03 of 06',
     text: 'When did you first <em>notice</em> changes?',
     options: [
       { text: 'From birth — milestones came slowly', value: 'onset_birth' },
-      { text: 'Was developing typically, then regressed (1-2 yrs)', value: 'onset_regression' },
-      { text: 'Sudden change after illness, infection, or stress', value: 'onset_sudden' },
-      { text: 'After a specific medical event (birth complications, injury)', value: 'onset_event' },
+      { text: 'Was developing typically, then gradually regressed', value: 'onset_regression_gradual' },
+      { text: 'Sudden change after illness or infection', value: 'onset_sudden_illness' },
+      { text: 'Lost skills after a specific illness, vaccination, or trigger', value: 'onset_regression_trigger' },
+      { text: 'After birth complications, NICU stay, or medical event', value: 'onset_birth_event' },
       { text: 'Recently — specific weaknesses standing out', value: 'onset_recent' }
     ]
   },
   {
-    label: 'Question 04 of 04',
+    label: 'Question 04 of 06',
     text: 'How <em>significant</em> are the challenges day-to-day?',
     options: [
       { text: 'Mild — meets some milestones, specific gaps', value: 'sev_mild' },
       { text: 'Moderate — significant delays, multiple areas affected', value: 'sev_moderate' },
       { text: 'Severe — multiple systems, daily life heavily affected', value: 'sev_severe' }
     ]
+  },
+  {
+    label: 'Question 05 of 06',
+    text: 'Where are you in this <em>journey</em>?',
+    options: [
+      { text: 'Just starting to explore options', value: 'exp_just_starting' },
+      { text: 'Doing speech, OT, or PT — the basics', value: 'exp_basics' },
+      { text: 'ABA or behavioral therapy is our main path', value: 'exp_aba' },
+      { text: 'We\'ve added biomedical work — supplements, diet, labs', value: 'exp_biomedical' },
+      { text: 'Tried multiple paths — looking for what\'s next', value: 'exp_tried_multiple' }
+    ]
+  },
+  {
+    label: 'Question 06 of 06',
+    text: 'How <em>involved</em> a program are you looking for?',
+    options: [
+      { text: 'A foundation we can run ourselves — show me what to do', value: 'inv_foundation' },
+      { text: 'A guided program with regular check-ins', value: 'inv_accelerated' },
+      { text: 'Full immersion with daily clinical support', value: 'inv_immersive' }
+    ]
   }
 ];
 
-function assignProfile(answers) {
-  // Onset is the strongest signal
-  if (answers.includes('onset_regression')) return 'C';
-  if (answers.includes('onset_sudden')) return 'F';
-  if (answers.includes('onset_event')) return 'E';
-  if (answers.includes('onset_recent') || answers.includes('sev_mild')) return 'D';
-  if (answers.includes('sev_severe') || answers.includes('concern_multiple')) return 'B';
-  return 'A';
+/* assignBucket — returns { route, bucket, tier, intensity }
+   Q1-Q4 drive bucket assignment.
+   Q5 (experience) and Q6 (involvement) drive tier/intensity overrides.
+   Severity contributes a tier upgrade when stacked with experience depth. */
+function assignBucket(answers) {
+  // MD-intake override — severe + multi-system goes to a clinician, not a self-triage reveal
+  if (answers.includes('sev_severe') && answers.includes('concern_multiple')) {
+    return { route: 'md_intake', bucket: null, tier: null, intensity: null };
+  }
+
+  // Bucket assignment (onset-driven)
+  let bucket;
+  if      (answers.includes('onset_birth_event'))         bucket = 'birth_structural';
+  else if (answers.includes('onset_regression_trigger'))  bucket = 'acquired_regression';
+  else if (answers.includes('onset_sudden_illness'))      bucket = 'hyperimmune';
+  else if (answers.includes('onset_regression_gradual')) bucket = 'environmental';
+  else if (answers.includes('onset_recent'))              bucket = 'sensory_motor';
+  else if (answers.includes('concern_motor'))             bucket = 'sensory_motor';
+  else                                                    bucket = 'foundational';
+
+  // Tier — driven by Q6 (involvement preference), upgraded by Q5/Q4 signals
+  let tier;
+  if      (answers.includes('inv_foundation'))  tier = 'foundation';
+  else if (answers.includes('inv_immersive'))   tier = 'immersive';
+  else                                          tier = 'accelerated';
+
+  // Experience upgrade — tried-multiple at foundation tier bumps to accelerated
+  // (the parent has already done the "self-run" version of this with other approaches)
+  if (answers.includes('exp_tried_multiple') && tier === 'foundation') {
+    tier = 'accelerated';
+  }
+
+  // Severity upgrade — severe (without concern_multiple, which is MD-intake) bumps foundation up
+  if (answers.includes('sev_severe') && tier === 'foundation') {
+    tier = 'accelerated';
+  }
+
+  // Compounding upgrade — severe + tried-multiple at accelerated bumps to immersive
+  if (answers.includes('sev_severe') && answers.includes('exp_tried_multiple') && tier === 'accelerated') {
+    tier = 'immersive';
+  }
+
+  // Intensity tracks tier
+  const intensity = { foundation: 'LIGHT', accelerated: 'MID', immersive: 'HIGH' }[tier];
+
+  return { route: 'reveal', bucket, tier, intensity };
 }
 
 /* Pill labels for the recap on the reveal screen */
@@ -2636,13 +2758,22 @@ const ANSWER_PILL_LABELS = {
   concern_motor: 'Motor / coordination',
   concern_multiple: 'Multiple areas',
   onset_birth: 'From birth',
-  onset_regression: 'Regression around 18-24 mo',
-  onset_sudden: 'Sudden post-illness',
-  onset_event: 'After medical event',
+  onset_regression_gradual: 'Gradual regression',
+  onset_sudden_illness: 'Sudden, post-illness',
+  onset_regression_trigger: 'Lost skills after a trigger',
+  onset_birth_event: 'After birth complications',
   onset_recent: 'Recently noticed',
   sev_mild: 'Mild',
   sev_moderate: 'Moderate',
-  sev_severe: 'Severe'
+  sev_severe: 'Severe',
+  exp_just_starting: 'Just exploring',
+  exp_basics: 'Speech / OT / PT',
+  exp_aba: 'ABA / behavioral',
+  exp_biomedical: 'Biomedical added',
+  exp_tried_multiple: 'Tried multiple paths',
+  inv_foundation: 'Self-run foundation',
+  inv_accelerated: 'Guided program',
+  inv_immersive: 'Full immersion'
 };
 
 /* Phrasing maps used by the personalized synthesis */
@@ -2661,18 +2792,31 @@ const CONCERN_PHRASES = {
 };
 const ONSET_PHRASES = {
   onset_birth: 'with delays present from birth',
-  onset_regression: 'who was developing typically and then regressed around 18-24 months',
-  onset_sudden: 'whose presentation shifted suddenly after illness or infection',
-  onset_event: 'following a specific medical event',
+  onset_regression_gradual: 'who was developing typically and then gradually regressed',
+  onset_sudden_illness: 'whose presentation shifted suddenly after an illness or infection',
+  onset_regression_trigger: 'who lost skills following a specific illness or trigger event',
+  onset_birth_event: 'following a birth complication, NICU stay, or medical event',
   onset_recent: 'with specific weaknesses standing out recently'
 };
 
-/* Per-profile synthesis — uses the parent's answers to explain WHY this profile fits */
-function buildPersonalizedReveal(profileKey, answers) {
+/* Experience-acknowledging prefix — prepended to the per-bucket synthesis
+   when the parent has answered Q5. Tone: validating without being salesy.
+   Each prefix is one sentence that lands before the clinical observation. */
+const EXPERIENCE_PREFIX = {
+  exp_just_starting:   'Many families find us early — when something tells them the standard path isn\'t going to be enough. That instinct is usually right. ',
+  exp_basics:          'The basics — speech, OT, PT — matter, but they often aren\'t the lever. Especially when you\'re seeing the same gaps after months of consistent work. ',
+  exp_aba:             'ABA addresses behavior; what we work on is the brain physiology underneath. The two often layer well, and progress in one usually unlocks progress in the other. ',
+  exp_biomedical:      'You\'ve been thinking about this through the right lens — biomedical drivers are exactly where we\'d look first too. ',
+  exp_tried_multiple:  'You\'ve been at this a while. What you\'re describing is the picture that often emerges after several other approaches haven\'t fully moved the needle. '
+};
+
+/* Per-bucket synthesis — uses the parent's answers to explain WHY this bucket fits */
+function buildPersonalizedReveal(bucketKey, answers) {
   const ageKey = answers.find(a => a.startsWith('age_')) || 'age_4_6';
   const concernKey = answers.find(a => a.startsWith('concern_')) || 'concern_speech';
   const onsetKey = answers.find(a => a.startsWith('onset_')) || 'onset_birth';
   const sevKey = answers.find(a => a.startsWith('sev_')) || 'sev_moderate';
+  const expKey = answers.find(a => a.startsWith('exp_')) || null;
 
   const age = AGE_PHRASES[ageKey];
   const concern = CONCERN_PHRASES[concernKey];
@@ -2684,27 +2828,42 @@ function buildPersonalizedReveal(profileKey, answers) {
     sev_severe: 'severe impact across multiple systems'
   }[sevKey];
 
+  const expPrefix = expKey ? EXPERIENCE_PREFIX[expKey] : '';
+
   const synthesis = {
-    A: `For <em>${age}</em> with ${concern} ${onset}, Profile A is the most common pattern we see. The brain is wired and ready to build — it just needs the right stimulation, in the right order, daily.`,
-    B: `For <em>${age}</em> with ${concern} ${onset} and ${sevHedge}, Profile B fits best. Multiple systems are pulling on each other, which is why a single therapy hasn't moved the needle. The plan we'd build is layered, with someone walking you through it every weekday.`,
-    C: `For <em>${age}</em> with ${concern} ${onset}, Profile C is the strongest fit. Something flipped the immune system into chronic inflammation, and the developing brain caught the brunt of it. The neurological work matters — but the bigger lever here is biomedical.`,
-    D: `For <em>${age}</em> with ${concern} ${onset}, Profile D is what we typically see. Most of the hardware is in place. We're tuning, not rebuilding — and tuning works fast when the foundation is solid.`,
-    E: `For <em>${age}</em> with ${concern} ${onset}, Profile E is the most likely fit. Specific neural networks took a hit, and they need targeted input — precisely placed, consistently delivered. The brain doesn't stop healing; our job is to feed it the right signal.`,
-    F: `For <em>${age}</em> with ${concern} ${onset}, Profile F is the strongest fit. This is treatable. The lever is anti-inflammatory and infection-clearing — and behaviors usually start pulling back once the autoimmune storm calms.`
+    foundational: `${expPrefix}For <em>${age}</em> with ${concern} ${onset}, what you're describing fits the <em>Foundational Pattern</em> — the most common picture we see. The bottom-up scaffolding (brainstem reflexes, vagal tone, hemispheric balance) didn't fully assemble. The brain is wired and ready to build — it just needs the right stimulation, in the right order, daily.`,
+    sensory_motor: `${expPrefix}For <em>${age}</em> with ${concern} ${onset}, what you're describing fits the <em>Sensory-Motor Pattern</em>. The cognitive hardware is largely in place, but the link between sensory input and motor output is noisy. Retained primitive reflexes, vestibular work, and cerebellar timing are the levers that move this fastest — and at ${sevHedge}, the response curve is usually quick.`,
+    birth_structural: `${expPrefix}For <em>${age}</em> with ${concern} ${onset}, what you're describing fits the <em>Birth or Structural Pattern</em>. Specific neural networks took a hit, and they need targeted input — precisely placed, consistently delivered. Progress here is measured against your child's own baseline, not generic developmental norms. The brain doesn't stop healing; our job is to feed it the right signal.`,
+    environmental: `${expPrefix}For <em>${age}</em> with ${concern} ${onset} and ${sevHedge}, what you're describing fits the <em>Environmental Inflammatory Pattern</em>. Something — most often chronic mold exposure or accumulated toxic load — flipped the immune system into a slow burn, and the developing brain is taking the brunt. The neurological work matters, but the bigger lever here is biomedical: find the driver, calm the inflammation, then rebuild on stable ground.`,
+    hyperimmune: `${expPrefix}For <em>${age}</em> with ${concern} ${onset}, what you're describing fits the <em>Immune-Driven Pattern</em> — the family of presentations sometimes called PANS or PANDAS. This is treatable. The lever is anti-inflammatory and infection-clearing, and the behaviors usually start pulling back once the immune storm calms. The plan combines biomedical work with vagal regulation in a way the other patterns don't.`,
+    acquired_regression: `${expPrefix}For <em>${age}</em> with ${concern} ${onset}, what you're describing fits the <em>Acquired Regression Pattern</em>. A specific event — illness, infection, vaccination, or toxic exposure — knocked things off course. The encouraging part is that you have a clear "before" to aim for. Recovery work is biomedical first (clear what's still driving the loss), then neurological rebuild on top of that.`
   };
 
-  return synthesis[profileKey];
+  return synthesis[bucketKey];
 }
+
+/* Copy for the MD-intake route — shown when assignBucket returns route: 'md_intake' */
+const MD_INTAKE_COPY = {
+  eyebrow: 'Direct intake recommended',
+  title: "Let's talk before we sketch a plan.",
+  body: [
+    `What you're describing — challenges across multiple systems at a severe daily level — is too complex for a self-triage to do justice to. We don't want to hand you a generic pattern when your situation calls for a clinician walking you through it directly.`,
+    `Book a Discovery Call. One of our team will spend 30-45 minutes with you, understand what's actually happening, and tell you honestly whether NeuroHome is the right next step. If it's not, we'll point you somewhere useful.`
+  ],
+  cta: 'Book a Discovery Call'
+};
 
 /* ═════════════════════════════════════════════════
    STATE & NAVIGATION
    ═════════════════════════════════════════════════ */
 let currentQuestion = 0;
 let answers = [];
-let selectedProfile = null;
+let selectedBucket = null;
+let tierOverride = null;
+let intensityOverride = null;
 
 function showScreen(id) {
-  document.querySelectorAll('.screen, #welcome, #intake, #picker, #reveal, #results').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen, #welcome, #intake, #picker, #reveal, #mdIntake, #results').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.getElementById('restartBtn').style.display = (id === 'welcome') ? 'none' : 'block';
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -2738,19 +2897,26 @@ function answerQuestion(value) {
     currentQuestion++;
     renderQuestion();
   } else {
-    selectedProfile = assignProfile(answers);
-    showReveal(selectedProfile);
+    const result = assignBucket(answers);
+    if (result.route === 'md_intake') {
+      showMdIntake();
+    } else {
+      selectedBucket = result.bucket;
+      tierOverride = result.tier;
+      intensityOverride = result.intensity;
+      showReveal(selectedBucket);
+    }
   }
 }
 
-function showReveal(profileKey) {
-  selectedProfile = profileKey;
-  const p = profiles[profileKey];
-  document.documentElement.style.setProperty('--p-color', p.color);
-  document.documentElement.style.setProperty('--p-soft', p.softColor);
-  document.getElementById('revealLetter').textContent = p.letter;
-  document.getElementById('revealName').textContent = `Profile ${p.letter} · ${p.name}`;
-  document.getElementById('revealTagline').textContent = p.tagline;
+function showReveal(bucketKey) {
+  selectedBucket = bucketKey;
+  const b = buckets[bucketKey];
+  document.documentElement.style.setProperty('--p-color', b.color);
+  document.documentElement.style.setProperty('--p-soft', b.softColor);
+  document.getElementById('revealSeverity').textContent = b.severity;
+  document.getElementById('revealName').textContent = `${b.name} · ${b.severityLabel}`;
+  document.getElementById('revealTagline').textContent = b.tagline;
 
   // Build recap pills from the parent's answers
   const recapEl = document.getElementById('revealRecap');
@@ -2770,31 +2936,44 @@ function showReveal(profileKey) {
   }
 
   // Personalized synthesis paragraph
-  document.getElementById('revealPersonalized').innerHTML = buildPersonalizedReveal(profileKey, answers);
+  document.getElementById('revealPersonalized').innerHTML = buildPersonalizedReveal(bucketKey, answers);
 
   showScreen('reveal');
 }
 
+function showMdIntake() {
+  // Neutral palette for MD-intake screen
+  document.documentElement.style.setProperty('--p-color', 'var(--bk-md-intake)');
+  document.documentElement.style.setProperty('--p-soft', 'var(--bk-md-intake-soft)');
+  document.getElementById('mdIntakeEyebrow').textContent = MD_INTAKE_COPY.eyebrow;
+  document.getElementById('mdIntakeTitle').textContent = MD_INTAKE_COPY.title;
+  document.getElementById('mdIntakeBody').innerHTML = MD_INTAKE_COPY.body.map(p => `<p>${p}</p>`).join('');
+  document.getElementById('mdIntakeCta').textContent = MD_INTAKE_COPY.cta;
+  showScreen('mdIntake');
+}
+
 function goToResults() {
-  renderResults(selectedProfile);
+  renderResults(selectedBucket);
   showScreen('results');
 }
 
-function selectProfileFromPicker(profileKey) {
-  selectedProfile = profileKey;
-  const p = profiles[profileKey];
-  document.documentElement.style.setProperty('--p-color', p.color);
-  document.documentElement.style.setProperty('--p-soft', p.softColor);
-  renderResults(profileKey);
+function selectBucketFromPicker(bucketKey) {
+  selectedBucket = bucketKey;
+  tierOverride = null;
+  intensityOverride = null;
+  const b = buckets[bucketKey];
+  document.documentElement.style.setProperty('--p-color', b.color);
+  document.documentElement.style.setProperty('--p-soft', b.softColor);
+  renderResults(bucketKey);
   showScreen('results');
 }
 
-function switchProfile(profileKey) {
-  selectedProfile = profileKey;
-  const p = profiles[profileKey];
-  document.documentElement.style.setProperty('--p-color', p.color);
-  document.documentElement.style.setProperty('--p-soft', p.softColor);
-  renderResults(profileKey);
+function switchBucket(bucketKey) {
+  selectedBucket = bucketKey;
+  const b = buckets[bucketKey];
+  document.documentElement.style.setProperty('--p-color', b.color);
+  document.documentElement.style.setProperty('--p-soft', b.softColor);
+  renderResults(bucketKey);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2842,42 +3021,44 @@ function renderQuestion() {
 function renderPicker() {
   const grid = document.getElementById('pickerGrid');
   let html = '';
-  Object.keys(profiles).forEach(key => {
-    const p = profiles[key];
+  Object.keys(buckets).forEach(key => {
+    const b = buckets[key];
     html += `
-      <div class="picker-card" style="--card-color: ${p.color}" onclick="selectProfileFromPicker('${key}')">
-        <div class="picker-card-letter">${p.letter}</div>
-        <div class="picker-card-name">Profile ${p.letter} · ${p.name}</div>
-        <div class="picker-card-tagline">${p.tagline}</div>
-        <div class="picker-card-desc">${p.short}</div>
+      <div class="picker-card" style="--card-color: ${b.color}" onclick="selectBucketFromPicker('${key}')">
+        <div class="picker-card-letter">${b.severity}</div>
+        <div class="picker-card-name">${b.name} · ${b.severityLabel}</div>
+        <div class="picker-card-tagline">${b.tagline}</div>
+        <div class="picker-card-desc">${b.short}</div>
       </div>
     `;
   });
   grid.innerHTML = html;
 }
 
-function renderResults(profileKey) {
-  const p = profiles[profileKey];
-  const tier = TIERS[p.tier];
+function renderResults(bucketKey) {
+  const b = buckets[bucketKey];
+  const tierKey = tierOverride || b.tier;
+  const tier = TIERS[tierKey];
+  const intensity = intensityOverride || b.intensity;
 
   // Switcher pills
   let pillsHTML = '';
-  Object.keys(profiles).forEach(key => {
-    const pp = profiles[key];
-    const active = (key === profileKey) ? ' active' : '';
-    pillsHTML += `<button class="switcher-pill${active}" style="--pill-color: ${pp.color}" onclick="switchProfile('${key}')">
-      <span class="switcher-pill-letter">${pp.letter}</span>
-      <span>${pp.name}</span>
+  Object.keys(buckets).forEach(key => {
+    const bb = buckets[key];
+    const active = (key === bucketKey) ? ' active' : '';
+    pillsHTML += `<button class="switcher-pill${active}" style="--pill-color: ${bb.color}" onclick="switchBucket('${key}')">
+      <span class="switcher-pill-letter">${bb.severity}</span>
+      <span>${bb.name}</span>
     </button>`;
   });
   document.getElementById('switcherPills').innerHTML = pillsHTML;
 
   // Results sections
-  const presentationRows = Object.entries(p.presentation).map(([k, v]) =>
+  const presentationRows = Object.entries(b.presentation).map(([k, v]) =>
     `<div class="poc-row"><span class="poc-label">${k}</span><span class="poc-val">${v}</span></div>`
   ).join('');
 
-  const approachCards = p.approach.map((a, i) => `
+  const approachCards = b.approach.map((a, i) => `
     <div class="approach-card">
       <div class="approach-card-num">0${i + 1}</div>
       <div class="approach-card-title">${a.title}</div>
@@ -2911,21 +3092,21 @@ function renderResults(profileKey) {
   `).join('');
 
   let addOnsHTML = '';
-  if (p.addOns && p.addOns.length > 0) {
-    const addOnCards = p.addOns.map(a => `
+  if (b.addOns && b.addOns.length > 0) {
+    const addOnCards = b.addOns.map(a => `
       <div class="kit-item addon">
-        <div class="kit-item-cat">Profile ${p.letter} add-on</div>
+        <div class="kit-item-cat">${b.name} add-on</div>
         <div class="kit-item-name">${a.name}</div>
         <div class="kit-item-purpose">${a.purpose}</div>
       </div>
     `).join('');
     addOnsHTML = `
-      <div class="kit-section-label">Profile ${p.letter} add-ons</div>
+      <div class="kit-section-label">${b.name} add-ons</div>
       <div class="kit-grid">${addOnCards}</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:14px;line-height:1.6">${p.addOnsNote}</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:14px;line-height:1.6">${b.addOnsNote}</p>
     `;
   } else {
-    addOnsHTML = `<p style="font-size:14px;color:var(--text-secondary);margin-top:24px;padding:18px;background:var(--bg-elevated);border-radius:10px;line-height:1.6">${p.addOnsNote}</p>`;
+    addOnsHTML = `<p style="font-size:14px;color:var(--text-secondary);margin-top:24px;padding:18px;background:var(--bg-elevated);border-radius:10px;line-height:1.6">${b.addOnsNote}</p>`;
   }
 
   const phasesHTML = PHASES.map(ph => `
@@ -2937,9 +3118,9 @@ function renderResults(profileKey) {
     </div>
   `).join('');
 
-  const morningBlock = p.daily.morning;
-  const middayBlock = p.daily.midday;
-  const eveningBlock = p.daily.evening;
+  const morningBlock = b.daily.morning;
+  const middayBlock = b.daily.midday;
+  const eveningBlock = b.daily.evening;
 
   const renderBlock = (tag, block) => `
     <div class="plan-block">
@@ -2955,17 +3136,17 @@ function renderResults(profileKey) {
     </div>
   `;
 
-  const flareNote = p.daily.flare ? `
+  const flareNote = b.daily.flare ? `
     <div style="margin-top:24px;padding:20px;background:var(--p-soft);border-left:3px solid var(--p-color);border-radius:8px;font-size:14px;line-height:1.65">
       <strong style="color:var(--p-color);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Flare-day rescue protocol</strong>
-      <p style="margin-top:8px;color:var(--text-secondary)">${p.daily.flare}</p>
+      <p style="margin-top:8px;color:var(--text-secondary)">${b.daily.flare}</p>
     </div>
   ` : '';
 
-  const progressionNote = p.daily.progression ? `
+  const progressionNote = b.daily.progression ? `
     <div class="plan-day-progression">
       <strong>How this changes over 12 weeks</strong>
-      ${p.daily.progression}
+      ${b.daily.progression}
     </div>
   ` : '';
 
@@ -2984,10 +3165,10 @@ function renderResults(profileKey) {
     </div>
   `).join('');
 
-  const profileStories = getStoriesForProfile(p.letter);
-  const storyCards = renderStoryCards(profileStories);
+  const bucketStories = getStoriesForBucket(bucketKey);
+  const storyCards = renderStoryCards(bucketStories);
 
-  const cp = CHANGE_PATTERNS[p.letter];
+  const cp = CHANGE_PATTERNS[bucketKey];
   const changePhases = `
     <div class="change-phase">
       <span class="change-phase-tag">Weeks 1-4 · regulation</span>
@@ -3025,7 +3206,7 @@ function renderResults(profileKey) {
   `).join('');
 
   const fitYesItems = RIGHTFIT.yes.map(item => {
-    const text = item.profileMin ? item.text.replace('%MIN%', getProfileDailyMin(p)) : item.text;
+    const text = item.profileMin ? item.text.replace('%MIN%', getBucketDailyMin(b)) : item.text;
     return `<li>${text}</li>`;
   }).join('');
   const fitNoItems = RIGHTFIT.no.map(item => `<li>${item.text}</li>`).join('');
@@ -3041,22 +3222,22 @@ function renderResults(profileKey) {
 
   document.getElementById('resultsContent').innerHTML = `
 
-    <!-- 1. Profile overview -->
+    <!-- 1. Bucket overview -->
     <div class="section">
-      <div class="section-tag">Your child's profile</div>
-      <h2 class="section-title">Profile ${p.letter} · <em>${p.name}</em></h2>
-      <p class="section-lead">${p.tagline}</p>
+      <div class="section-tag">Your child's pattern</div>
+      <h2 class="section-title">${b.name} <em>· ${b.severityLabel}</em></h2>
+      <p class="section-lead">${b.tagline}</p>
       <div class="profile-overview">
         <div class="profile-overview-text">
           <div class="profile-overview-tag">What this means</div>
-          <div class="profile-overview-tagline">${p.short}</div>
+          <div class="profile-overview-tagline">${b.short}</div>
           <div class="profile-overview-body">
-            ${p.description.map(para => `<p>${para}</p>`).join('')}
+            ${b.description.map(para => `<p>${para}</p>`).join('')}
           </div>
         </div>
         <div class="profile-overview-card">
           ${presentationRows}
-          <div class="poc-row" style="border-top:2px solid var(--p-color);margin-top:8px;padding-top:14px"><span class="poc-label">Intensity</span><span class="poc-val" style="color:var(--p-color);font-weight:600">${p.intensity}</span></div>
+          <div class="poc-row" style="border-top:2px solid var(--p-color);margin-top:8px;padding-top:14px"><span class="poc-label">Intensity</span><span class="poc-val" style="color:var(--p-color);font-weight:600">${intensity}</span></div>
         </div>
       </div>
     </div>
@@ -3065,7 +3246,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">Who you'll be working with</div>
       <h2 class="section-title">Built on <em>real cases</em>, not theory.</h2>
-      <p class="section-lead">The profile system, the kit, and the 12-week protocol are pulled from clinical work with 41 children — across the autism spectrum, regression cases, acquired injuries, and PANS/PANDAS. Your child won't be the experiment.</p>
+      <p class="section-lead">The classification system, the kit, and the 12-week protocol are pulled from clinical work with 41 children — across the autism spectrum, regression cases, acquired injuries, and PANS/PANDAS. Your child won't be the experiment.</p>
       <div class="team-strip">
         <div class="team-grid">${teamCards}</div>
         <div class="cohort-card">
@@ -3082,7 +3263,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">Our treatment approach</div>
       <h2 class="section-title">How we'll <em>work with</em> your child</h2>
-      <p class="section-lead">For Profile ${p.letter}, the plan emphasizes these four pillars across the 12 weeks. The ratios shift over time — heavier early, lighter later — but these are the throughlines.</p>
+      <p class="section-lead">For the ${b.name}, the plan emphasizes these four pillars across the 12 weeks. The ratios shift over time — heavier early, lighter later — but these are the throughlines.</p>
       <div class="approach-grid">${approachCards}</div>
     </div>
 
@@ -3090,7 +3271,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">Recommended package</div>
       <h2 class="section-title">The <em>${tier.name}</em> plan</h2>
-      <p class="section-lead">Based on Profile ${p.letter}'s typical clinical needs and the cohort data we've gathered from 41 cases, this is the package we'd recommend as the starting point.</p>
+      <p class="section-lead">Based on the ${b.name}'s typical clinical needs and the cohort data we've gathered from 41 cases, this is the package we'd recommend as the starting point.</p>
       <div class="tier-rec">
         <div class="tier-rec-badge">${tier.badge}</div>
         <h3 class="tier-rec-name">${tier.name} · <em>${tier.price}</em></h3>
@@ -3104,7 +3285,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">What you'll receive</div>
       <h2 class="section-title">Your <em>NeuroHome kit</em></h2>
-      <p class="section-lead">Every family in the program receives the same foundational kit and 3-month supplement supply. ${p.addOns.length > 0 ? `For Profile ${p.letter}, we'll also prescribe specific add-ons after the intake assessment.` : `Profile ${p.letter} doesn't typically require additional add-ons — the foundational kit covers it.`}</p>
+      <p class="section-lead">Every family in the program receives the same foundational kit and 3-month supplement supply. ${b.addOns.length > 0 ? `For the ${b.name}, we'll also prescribe specific add-ons after the intake assessment.` : `The ${b.name} doesn't typically require additional add-ons — the foundational kit covers it.`}</p>
 
       <div class="kit-section-label">Foundational devices · 7 items</div>
       <div class="kit-grid">${kitDevices}</div>
@@ -3119,7 +3300,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">Diagnostics</div>
       <h2 class="section-title">The <em>labs</em> we order</h2>
-      <p class="section-lead">${p.tier === 'foundation' ? 'Foundation tier includes universal labs (Stool + OAT) — the panels every child gets to surface gut and metabolic drivers from day one.' : 'Your tier includes the full diagnostic panel — universal labs plus Total Tox Burden and Neural Zoomer Plus, covering all six biomedical categories.'} Lab results return between weeks 4-6 and drive the biomedical layer of the protocol.</p>
+      <p class="section-lead">${tierKey === 'foundation' ? 'Foundation tier includes universal labs (Stool + OAT) — the panels every child gets to surface gut and metabolic drivers from day one.' : 'Your tier includes the full diagnostic panel — universal labs plus Total Tox Burden and Neural Zoomer Plus, covering all six biomedical categories.'} Lab results return between weeks 4-6 and drive the biomedical layer of the protocol.</p>
       <div class="labs-grid">${labsCards}</div>
     </div>
 
@@ -3127,7 +3308,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">Your 12-week plan</div>
       <h2 class="section-title">What 12 <em>weeks</em> looks like</h2>
-      <p class="section-lead">${p.schedule.active} ${p.schedule.sample}</p>
+      <p class="section-lead">${b.schedule.active} ${b.schedule.sample}</p>
 
       <div class="plan-phases">${phasesHTML}</div>
 
@@ -3135,11 +3316,11 @@ function renderResults(profileKey) {
         <div class="plan-day-header">
           <div>
             <div class="plan-day-title">A typical day in the active phase</div>
-            <div class="plan-day-sub">Sample · Profile ${p.letter} · ${p.intensity} intensity</div>
+            <div class="plan-day-sub">Sample · ${b.name} · ${intensity} intensity</div>
           </div>
           <div class="plan-day-totals">
             <div class="plan-day-totals-cell">
-              <div class="plan-day-totals-num">${p.daily.totalMin}</div>
+              <div class="plan-day-totals-num">${b.daily.totalMin}</div>
               <div class="plan-day-totals-label">Total daily commitment</div>
             </div>
           </div>
@@ -3158,7 +3339,7 @@ function renderResults(profileKey) {
     <div class="section">
       <div class="section-tag">What change looks like</div>
       <h2 class="section-title">Trajectory: <em>regulation, engagement, function.</em></h2>
-      <p class="section-lead">For Profile ${p.letter}, here's what families typically observe as neuroplastic change unfolds. Not a checklist — a pattern. The order matters more than the timing.</p>
+      <p class="section-lead">For the ${b.name}, here's what families typically observe as neuroplastic change unfolds. Not a checklist — a pattern. The order matters more than the timing.</p>
       <div class="change-grid">${changePhases}</div>
       <div class="change-caveat">
         <strong>How we think about outcomes</strong>
@@ -3169,7 +3350,7 @@ function renderResults(profileKey) {
     <!-- 9. Patient stories -->
     <div class="section">
       <div class="section-tag">Families like yours</div>
-      <h2 class="section-title">Three Profile ${p.letter} <em>journeys</em>.</h2>
+      <h2 class="section-title">Three ${b.name} <em>journeys</em>.</h2>
       <p class="section-lead">Different ages, different starting points — all children whose presentations matched the pattern we'd see in your child. Names changed, details composited from cohort cases.</p>
       <div class="stories-grid">${storyCards}</div>
     </div>
@@ -3206,7 +3387,7 @@ function renderResults(profileKey) {
     </div>
 
     <!-- 12. Discovery call (upgraded) -->
-    <div class="section" style="border-bottom:none">
+    <div class="section" style="border-bottom:none" id="discovery">
       <div class="discovery-card">
         <div class="discovery-content">
           <div class="discovery-mark">The next step</div>
@@ -3237,7 +3418,7 @@ function renderResults(profileKey) {
       </div>
 
       <div class="disclaimer">
-        <strong>About this page.</strong> Profile assignment shown here is illustrative — in the actual program, your child's profile is confirmed by a clinician through intake forms, video review, and clinical case discussion, not a 4-question quiz. Tier recommendations are starting points; the final plan is personalized to your child after the discovery call. Patient stories on this page are composited from cohort patterns with names changed; the trajectories are representative.
+        <strong>About this page.</strong> Bucket assignment shown here is illustrative — in the actual program, your child's pattern is confirmed by a clinician through intake forms, video review, and clinical case discussion, not a 4-question quiz. Tier recommendations are starting points; the final plan is personalized to your child after the discovery call. Patient stories on this page are composited from cohort patterns with names changed; the trajectories are representative.
       </div>
     </div>
 
@@ -3253,7 +3434,7 @@ window.addEventListener('scroll', () => {
   else nav.classList.remove('scrolled');
 });
 
-// Set default profile color on load (will be overridden when a profile is selected)
+// Set default bucket color on load (overridden when a bucket is selected)
 document.documentElement.style.setProperty('--p-color', 'var(--accent)');
 document.documentElement.style.setProperty('--p-soft', 'var(--accent-soft)');
 

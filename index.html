@@ -2169,12 +2169,15 @@ const buckets = {
 };
 
 const FOUNDATIONAL_KIT = [
-  { cat: 'Photobiomodulation', name: 'LED Light Panel', purpose: 'Frequency-tunable for full-brain stimulation.' },
-  { cat: 'Laser', name: 'LED Laser NSH', purpose: 'Eye-safe foundational laser — vagus, cerebellum, abdomen, all the standard placements.' },
+  { cat: 'Photobiomodulation · Panel', name: 'LED Light Panel', purpose: 'Frequency-tunable for full-brain stimulation.' },
+  { cat: 'Photobiomodulation · Laser', name: 'LED Laser NSH', purpose: 'Eye-safe foundational laser — vagus, cerebellum, abdomen, all the standard placements.' },
+  { cat: 'Photobiomodulation · Handheld', name: 'Green LED Laser', purpose: 'Green-wavelength handheld. Chromatic-specific photobiomodulation paired with the red stack.' },
   { cat: 'Neuromuscular E-stim', name: 'SaeboStim Pro 4-in-1', purpose: 'Cranial nerve, paraspinal, acupressure point stim.' },
   { cat: 'Sensory · Vision', name: 'Blue Glasses with Eye Lights', purpose: 'Right-brain visual stimulation paired with rhythmic music.' },
   { cat: 'Sensory · Olfactory', name: 'Essential Oils Kit', purpose: 'Rosemary (left brain) and peppermint/frankincense (right brain).' },
   { cat: 'Acupressure', name: 'Shen Men Beads', purpose: 'Auricular acupressure pre/post sessions.' },
+  { cat: 'Oral motor · Sensory', name: 'Handheld Vibration Device', purpose: 'Face, jaw, palate, and body. Trigeminal stimulation and sensory regulation.' },
+  { cat: 'Outcome Tracking · fNIRS', name: 'Mendi Headband', purpose: 'Consumer-grade fNIRS. Weekly 3-minute prefrontal blood-flow score — yours to keep.' },
   { cat: 'Software', name: 'NeuroSage Hub', purpose: 'Right-brain video game library with 3 months included.' }
 ];
 
@@ -2187,7 +2190,7 @@ const TIERS = {
   foundation: {
     name: 'Foundation',
     philosophy: '"We\'ll teach you, then you run with it."',
-    price: '$9,000',
+    price: '$9,500',
     badge: 'Best fit',
     stats: [
       { num: '25', label: 'Total clinical hrs' },
@@ -2199,11 +2202,13 @@ const TIERS = {
       '9 hrs OT/PT clinical time',
       '14 hrs Concierge guided coaching',
       '1.5 hrs MD oversight',
-      'Foundational kit (7 devices)',
+      'Foundational kit (10 items)',
+      'Mendi headband — yours to keep',
       '3-month supplement supply',
       'Universal labs (Stool + OAT)',
       'NeuroSage Hub (3 mo)',
-      'ATEC tracking baseline / Wk 6 / Wk 12'
+      'ATEC + weekly Mendi tracking',
+      '$1,500 Continuing Care credit at Wk 12'
     ]
   },
   accelerated: {
@@ -2221,11 +2226,13 @@ const TIERS = {
       '13 hrs OT/PT (vs. 9) — twice weekly active',
       '20 hrs Concierge — twice-weekly check-ins',
       '2.5 hrs MD oversight',
-      'Foundational kit + supplements',
+      'Foundational kit (10 items) + Mendi headband',
+      '3-month supplement supply',
       'Full diagnostic labs included',
       'Pre & mid consultation',
       'Bi-weekly MD chart review',
-      'NeuroSage Hub (3 mo)'
+      'NeuroSage Hub (3 mo)',
+      '$2,000 Continuing Care credit at Wk 12'
     ]
   },
   immersive: {
@@ -2243,11 +2250,13 @@ const TIERS = {
       '18.5 hrs OT/PT — 3-4× weekly',
       '32 hrs Concierge — daily M-F',
       '3.5 hrs MD — bi-weekly Kyle involvement',
-      'Foundational kit + supplements',
+      'Foundational kit (10 items) + Mendi headband',
+      '3-month supplement supply',
       'Full diagnostic labs included',
       'Pre & post comprehensive consultation',
       'Saturday weekly deep-dive sessions',
-      'Priority scheduling and clinical access'
+      'Priority scheduling and clinical access',
+      '$2,500 Continuing Care credit at Wk 12'
     ]
   }
 };
@@ -3287,7 +3296,7 @@ function renderResults(bucketKey) {
       <h2 class="section-title">Your <em>NeuroHome kit</em></h2>
       <p class="section-lead">Every family in the program receives the same foundational kit and 3-month supplement supply. ${b.addOns.length > 0 ? `For the ${b.name}, we'll also prescribe specific add-ons after the intake assessment.` : `The ${b.name} doesn't typically require additional add-ons — the foundational kit covers it.`}</p>
 
-      <div class="kit-section-label">Foundational devices · 7 items</div>
+      <div class="kit-section-label">Foundational devices · 10 items</div>
       <div class="kit-grid">${kitDevices}</div>
 
       <div class="kit-section-label">3-month supplement supply</div>
